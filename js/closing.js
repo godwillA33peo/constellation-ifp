@@ -5,6 +5,7 @@
 import { state } from "./store.js";
 import { el, handLine, constellationLinks, drawIn, mulberry32, hashString, reducedMotion } from "./sky.js";
 import { layoutSky, SKY_W, SKY_H } from "./gallery.js";
+import { openFellowCard } from "./ui.js";
 
 const VIEW_W = 1000;
 const VIEW_H = 560;
@@ -47,16 +48,27 @@ export function initClosing() {
       svg.append(p);
       paths.push(p);
     }
-    c.stars.forEach((s, i) => {
+    c.stars.forEach((s) => {
+      // a comfortable tap target around each small star
+      const hit = el("g", { class: "closing-star-hit", tabindex: "0", role: "button" });
+      hit.setAttribute("aria-label", `${s.fellow.name} — ${s.fellow.course}, from ${s.fellow.country}`);
       const star = el("circle", {
         cx: s.x, cy: s.y, r: 2.1 + rng() * 1.1,
         class: "closing-star",
       });
       star.style.setProperty("--i", starEls.length);
+      hit.append(
+        el("circle", { cx: s.x, cy: s.y, r: 11, fill: "transparent" }),
+        star
+      );
       const title = el("title");
       title.textContent = `${s.fellow.name} — ${s.fellow.country}`;
-      star.append(title);
-      svg.append(star);
+      hit.append(title);
+      hit.addEventListener("click", () => openFellowCard(s.fellow));
+      hit.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openFellowCard(s.fellow); }
+      });
+      svg.append(hit);
       starEls.push(star);
     });
   }

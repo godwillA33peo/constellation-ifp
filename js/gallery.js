@@ -7,7 +7,7 @@ import { state } from "./store.js";
 import { el, handLine, drawIn, mulberry32, hashString, photoOrInitials, reducedMotion } from "./sky.js";
 import { groupByCountry } from "./arrivals.js";
 import { bloomTone } from "./soundscape.js";
-import { esc } from "./ui.js";
+import { esc, openFellowCard } from "./ui.js";
 
 export const SKY_W = 1900;
 export const SKY_H = 1240;
@@ -94,7 +94,8 @@ export function initGallery() {
       btn.className = "photo-star";
       btn.style.left = `${s.x}px`;
       btn.style.top = `${s.y}px`;
-      btn.setAttribute("aria-label", `${s.fellow.name}, ${s.fellow.country}`);
+      btn.setAttribute("aria-label",
+        `${s.fellow.name} — ${s.fellow.course}, from ${s.fellow.country}. Tap once to bloom, again for their story.`);
 
       const inner = document.createElement("span");
       inner.className = "ps-inner";
@@ -113,13 +114,16 @@ export function initGallery() {
       info.className = "bloom-info";
       info.innerHTML = `<span class="bi-name">${esc(s.fellow.name)}</span>
         <span class="bi-meta">${esc(s.fellow.course)}</span>
-        <span class="bi-meta">${esc(s.fellow.country)}</span>`;
+        <span class="bi-meta">from ${esc(s.fellow.country)}</span>
+        <span class="bi-more">tap again — full story ✦</span>`;
 
       btn.append(inner, nameTag, info);
       btn.addEventListener("click", (e) => {
         if (suppressClick) return;
         e.stopPropagation();
-        toggleBloom(btn);
+        // second tap on a bloomed star opens the full fellow card
+        if (btn.classList.contains("bloom")) openFellowCard(s.fellow);
+        else toggleBloom(btn);
       });
       canvas.append(btn);
       photoStars.push(btn);
@@ -266,11 +270,6 @@ export function initGallery() {
   function toggleBloom(btn) {
     const current = canvas.querySelector(".photo-star.bloom");
     if (current && current !== btn) current.classList.remove("bloom");
-    if (current === btn) {
-      btn.classList.remove("bloom");
-      stage.classList.remove("dimmed");
-      return;
-    }
     btn.classList.add("bloom");
     stage.classList.add("dimmed");
     bloomTone();
@@ -282,6 +281,7 @@ export function initGallery() {
   });
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
+    if (document.querySelector(".modal-scrim")) return; // let Escape close the card first
     const current = canvas.querySelector(".photo-star.bloom");
     if (current) { current.classList.remove("bloom"); stage.classList.remove("dimmed"); }
   });
