@@ -68,7 +68,7 @@ function renderGrid() {
   grid.innerHTML = visible
     .map(
       (e) => `
-    <article class="trade-card">
+    <article class="trade-entry">
       <h3>${esc(e.name)}</h3>
       <span class="trade-label">Can offer</span>
       <div class="skill-chips">${e.offering.map((s) => `<span class="skill-chip">${esc(s)}</span>`).join("")}</div>

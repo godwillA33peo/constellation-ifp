@@ -1,7 +1,9 @@
-// Entry point: load data, then either hand over to display mode
-// (?display=true, for the projector) or boot the four sections with
-// simple hash routing (#arrivals / #gallery / #game / #trade).
+// Entry point. The page is one continuous sky now — no hash routing,
+// no hidden sections. Load data, light the skyfield, boot the four
+// sections, and keep the nav in step with scrolling. ?display=true
+// still hands the whole screen to the projector view.
 import { initStore, state } from "./store.js";
+import { initSkyfield } from "./skyfield.js";
 import { initArrivals } from "./arrivals.js";
 import { initGallery } from "./gallery.js";
 import { initGame } from "./game.js";
@@ -12,6 +14,8 @@ const SECTIONS = ["arrivals", "gallery", "game", "trade"];
 
 async function boot() {
   const params = new URLSearchParams(location.search);
+
+  initSkyfield();
 
   try {
     await initStore();
@@ -35,20 +39,23 @@ async function boot() {
   initGame();
   initTrade();
 
-  window.addEventListener("hashchange", route);
-  route();
+  scrollSpy();
 }
 
-function route() {
-  const target = location.hash.replace("#", "") || "arrivals";
-  const current = SECTIONS.includes(target) ? target : "arrivals";
-  for (const id of SECTIONS) {
-    document.getElementById(id).hidden = id !== current;
-  }
-  document.querySelectorAll("[data-nav]").forEach((a) => {
-    a.setAttribute("aria-current", a.dataset.nav === current ? "true" : "false");
-  });
-  window.scrollTo({ top: 0, behavior: "instant" });
+// keep the nav's gold star on the section in view
+function scrollSpy() {
+  const links = [...document.querySelectorAll("[data-nav]")];
+  const spy = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const id = entry.target.id;
+        links.forEach((a) => a.setAttribute("aria-current", a.dataset.nav === id ? "true" : "false"));
+      }
+    },
+    { rootMargin: "-35% 0px -55% 0px" }
+  );
+  SECTIONS.forEach((id) => spy.observe(document.getElementById(id)));
 }
 
 boot();

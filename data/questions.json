@@ -1,0 +1,136 @@
+{
+  "_readme": "Star Chart question pools. Edit freely — no code changes needed. Each round mixes: 3 guess-the-fellow (generated from the fellows data), 3 'lore', 2 'places', 2 'realfake'. For 'lore' and 'places', 'answer' is the index into 'options' (options are shuffled on screen). For 'places' you can add a photo path (e.g. 'assets/quiz/quad.jpg') and it will show above the clue; leave null for text-only. For 'realfake', 'real': true/false and 'note' gives the truth.",
+
+  "lore": [
+    {
+      "q": "You've walked the whole Salthill prom. What's the ritual at the far end?",
+      "options": ["Kick the wall", "Touch the water", "Turn around three times", "Throw in a coin"],
+      "answer": 0,
+      "note": "Generations of Galwegians kick the wall at Blackrock before turning back."
+    },
+    {
+      "q": "What river runs through Galway city?",
+      "options": ["The Corrib", "The Shannon", "The Moy", "The Suir"],
+      "answer": 0,
+      "note": "Short, fast, and full of swans — the Corrib."
+    },
+    {
+      "q": "Galway's county colours, seen on every flag and jersey?",
+      "options": ["Maroon and white", "Green and gold", "Red and white", "Blue and saffron"],
+      "answer": 0
+    },
+    {
+      "q": "The Claddagh ring: the hands, the heart and the crown stand for…",
+      "options": ["Friendship, love and loyalty", "Faith, hope and charity", "Family, land and sea", "Past, present and future"],
+      "answer": 0,
+      "note": "Born in the Claddagh, the old fishing village across the river."
+    },
+    {
+      "q": "Galway is the City of the…",
+      "options": ["Tribes", "Saints", "Swans", "Arches"],
+      "answer": 0,
+      "note": "Fourteen merchant families — the Tribes of Galway."
+    },
+    {
+      "q": "Eyre Square's official name honours…",
+      "options": ["John F. Kennedy", "Pádraic Ó Conaire", "Christopher Columbus", "Grace O'Malley"],
+      "answer": 0,
+      "note": "JFK Memorial Park — he spoke there in June 1963."
+    },
+    {
+      "q": "Which company leads Galway's famous Halloween street parade?",
+      "options": ["Macnas", "Druid", "Fíbín", "Branar"],
+      "answer": 0
+    },
+    {
+      "q": "The Spanish Arch was built in 1584 to…",
+      "options": ["Extend the city wall and protect the quays", "House Spanish sailors", "Store Armada gold", "Mark the fish market"],
+      "answer": 0
+    },
+    {
+      "q": "Which bridge do you stand on to watch salmon running upstream?",
+      "options": ["Salmon Weir Bridge", "Wolfe Tone Bridge", "William O'Brien Bridge", "Quincentennial Bridge"],
+      "answer": 0
+    },
+    {
+      "q": "Our university opened its doors in 1849 as…",
+      "options": ["Queen's College Galway", "St Nicholas' College", "The Royal Academy of Connacht", "College of the Western Isles"],
+      "answer": 0,
+      "note": "Queen's College Galway → UCG → NUI Galway → University of Galway."
+    }
+  ],
+
+  "places": [
+    {
+      "name": "The Quadrangle",
+      "clue": "Limestone, Tudor-Gothic, the oldest corner of campus — and the law says your graduation photo happens here.",
+      "photo": null,
+      "options": ["The Quadrangle", "Galway Cathedral", "Lynch's Castle", "Menlo Castle"],
+      "answer": 0
+    },
+    {
+      "name": "James Hardiman Library",
+      "clue": "Where this cohort's deadlines were actually survived. Silent floors, group-study rooms, the smell of stress.",
+      "photo": null,
+      "options": ["James Hardiman Library", "Áras na Mac Léinn", "The Kingfisher", "O'Donoghue Centre"],
+      "answer": 0
+    },
+    {
+      "name": "The Spanish Arch",
+      "clue": "Stone arches at the river's mouth where the whole city sits with chips the moment the sun appears.",
+      "photo": null,
+      "options": ["The Spanish Arch", "The Long Walk", "The Claddagh", "Wolfe Tone Bridge"],
+      "answer": 0
+    },
+    {
+      "name": "Salthill Prom",
+      "clue": "Two kilometres of seafront where half of Galway walks on a Sunday — diving tower included, swimmers optional, weather irrelevant.",
+      "photo": null,
+      "options": ["Salthill Prom", "Silver Strand", "Ballyloughane Beach", "The Long Walk"],
+      "answer": 0
+    },
+    {
+      "name": "Galway Cathedral",
+      "clue": "The great green dome you can see from half the city — built on the site of the old jail.",
+      "photo": null,
+      "options": ["Galway Cathedral", "St Nicholas' Collegiate Church", "Galway Courthouse", "The Franciscan Abbey"],
+      "answer": 0
+    },
+    {
+      "name": "The Long Walk",
+      "clue": "The postcard: a single row of coloured houses along the harbour, photographed roughly nine million times a day.",
+      "photo": null,
+      "options": ["The Long Walk", "Quay Street", "The Claddagh", "Shop Street"],
+      "answer": 0
+    },
+    {
+      "name": "Quay Street",
+      "clue": "Cobbles, buskers, bunting and hen parties — the Latin Quarter street every visitor photographs first.",
+      "photo": null,
+      "options": ["Quay Street", "Eglinton Street", "Dominick Street", "University Road"],
+      "answer": 0
+    },
+    {
+      "name": "The Corrib walkway",
+      "clue": "The riverside path from town up past the cathedral toward campus — swan escort included at no extra charge.",
+      "photo": null,
+      "options": ["The Corrib walkway", "Terryland Forest Park", "Barna Woods", "Salthill Prom"],
+      "answer": 0
+    }
+  ],
+
+  "realfake": [
+    { "claim": "\"Craic\" means fun, news and a good time, as in \"any craic?\"", "real": true },
+    { "claim": "\"The messages\" means the groceries.", "real": true },
+    { "claim": "\"Deadly\" means terrible.", "real": false, "note": "Deadly means brilliant. Obviously." },
+    { "claim": "\"A press\" is a cupboard.", "real": true },
+    { "claim": "\"Giving out\" means handing out free samples.", "real": false, "note": "Giving out means scolding — as in \"she was giving out to me all day.\"" },
+    { "claim": "\"Culchie\" means someone from the city.", "real": false, "note": "It's the opposite — anyone from outside the city (Dubs would say all of Galway counts)." },
+    { "claim": "\"Minerals\" are soft drinks.", "real": true },
+    { "claim": "\"Acting the maggot\" means messing around.", "real": true },
+    { "claim": "\"Fierce\" means very — as in \"fierce cold out.\"", "real": true },
+    { "claim": "\"A yoke\" is an egg.", "real": false, "note": "A yoke is a thing — any thing — whose name you can't be bothered to remember." },
+    { "claim": "\"Grand\" means enormous.", "real": false, "note": "Grand just means fine. Everything is grand. Even when it isn't." },
+    { "claim": "\"Notions\" means having ideas above your station.", "real": true }
+  ]
+}

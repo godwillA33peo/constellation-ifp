@@ -64,6 +64,12 @@ On the projector view, press **R** to trigger the winner reveal on cue, and
 matching the `photo_url` filenames. Until a photo exists, the site shows a
 gold-initials star instead, so missing photos never break anything.
 
+**Editing the quiz:** all Galway lore / places / real-or-made-up questions
+live in [`data/questions.json`](data/questions.json) — plain JSON, no code.
+Each "Somewhere in Galway" question has a `photo` slot: drop an image into
+`assets/quiz/` and put its path there to turn a text clue into a photo round.
+Guess-the-fellow questions generate themselves from the fellows data.
+
 ## Deploying to GitHub Pages
 
 1. Create a new repository on GitHub (e.g. `constellation`) — public, empty

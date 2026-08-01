@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Constellation — Ireland Fellows, Galway</title>
   <meta name="description" content="A night sky for our cohort. Every fellow a star; every home country a point of origin; one night when the whole constellation is visible at once.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l3.2 10.8L30 16l-10.8 3.2L16 30l-3.2-10.8L2 16l10.8-3.2z' fill='%23F2C879'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l3.2 10.8L30 16l-10.8 3.2L16 30l-3.2-10.8L2 16l10.8-3.2z' fill='%23E6C87A'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,560;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -30,48 +30,77 @@
 
   <main id="app">
 
-    <section id="arrivals" class="section" aria-labelledby="arrivals-title" hidden>
+    <section id="arrivals" class="section" aria-labelledby="arrivals-title">
       <div class="section-intro">
         <h1 id="arrivals-title">The sky we made together</h1>
-        <p>We came to Galway from every direction — each of us a star, each home country a point of origin.
-           Tap a cluster to meet the fellows whose light started there.</p>
+        <p>We came to Galway from every direction — each of us a star, each home country
+           a point of origin, every line leading here. Tap a cluster to move closer.</p>
       </div>
-      <div id="arrivals-map" class="map-wrap" role="img" aria-label="World map showing where each fellow's journey began, drawn as star clusters"></div>
-      <aside id="cluster-panel" class="cluster-panel" hidden></aside>
+      <div id="arrivals-map" class="map-wrap" role="img"
+           aria-label="World map showing where each fellow's journey began, drawn as star clusters converging on Galway"></div>
     </section>
 
-    <section id="gallery" class="section" aria-labelledby="gallery-title" hidden>
+    <section id="gallery" class="section" aria-labelledby="gallery-title">
       <div class="section-intro">
         <h1 id="gallery-title">Sky Gallery</h1>
-        <p>The same sky, zoomed in. Drift around and find each other — every photo is a star,
-           still tied by a thin line to home.</p>
+        <p>The same sky, closer. Drag to drift, pinch to lean in, tap a star and it blooms.</p>
       </div>
-      <div id="gallery-sky" class="gallery-sky" tabindex="0" aria-label="Pannable sky of fellow photos. Scroll in any direction."></div>
+      <div id="gallery-sky" class="gallery-stage" tabindex="0"
+           aria-label="Pannable sky of fellow photos. Drag to pan, pinch or use the buttons to zoom, tap a photo to see who it is."></div>
     </section>
 
-    <section id="game" class="section" aria-labelledby="game-title" hidden>
+    <section id="game" class="section" aria-labelledby="game-title">
       <div class="section-intro">
         <h1 id="game-title">Star Chart</h1>
-        <p>How well do we actually know each other? Ten clues, one falling star each.
-           Answer before it lands — streaks and speed both count.</p>
+        <p>Ten questions about this city and this cohort, one comet each. Every right answer
+           sets a star in a constellation — get all ten and see what we've been drawing.</p>
       </div>
       <div id="game-root" class="game-root"></div>
     </section>
 
-    <section id="trade" class="section" aria-labelledby="trade-title" hidden>
+    <section id="trade" class="section section-last" aria-labelledby="trade-title">
       <div class="section-intro">
         <h1 id="trade-title">Trade Zone</h1>
-        <p>The part of the sky that stays lit after the party. Log what you can offer the rest of us,
-           and what you're looking for — wherever we all land next.</p>
+        <p>The corner of the sky that stays lit after the party. Log what you can offer the
+           rest of us, and what you're looking for — wherever we all land next.</p>
       </div>
       <div id="trade-root" class="trade-root"></div>
+      <p class="site-footer-line">Made by us, for us — Ireland Fellows, University of Galway. <span aria-hidden="true">✦</span></p>
     </section>
 
   </main>
 
-  <footer class="site-footer">
-    <p>Made by us, for us — Ireland Fellows, University of Galway. <span aria-hidden="true">✦</span></p>
-  </footer>
+  <!-- Galway, grounded: Spanish Arch · Cathedral · the Quadrangle -->
+  <div class="skyline" aria-hidden="true">
+    <svg viewBox="0 0 1200 150" preserveAspectRatio="xMidYMax meet">
+      <g class="skyline-shapes">
+        <!-- ground line -->
+        <path d="M0,150 L0,143 L1200,143 L1200,150 Z"/>
+        <!-- Spanish Arch: wall with two openings, small tower at right -->
+        <path fill-rule="evenodd" d="M40,150 L40,104 L232,104 L232,88 L260,88 L260,150 Z
+                 M84,150 L84,127 A24,24 0 0 1 132,127 L132,150 Z
+                 M156,150 L156,127 A24,24 0 0 1 204,127 L204,150 Z"/>
+        <!-- low quay wall -->
+        <path d="M260,150 L260,133 L420,133 L420,150 Z"/>
+        <!-- Cathedral: pitched nave, drum, dome, cross -->
+        <path d="M420,150 L420,112 L444,112 L490,86 L536,112 L700,112 L700,150 Z"/>
+        <path d="M518,112 L518,86 Q560,24 602,86 L602,112 Z"/>
+        <path d="M557,10 L563,10 L563,21 L571,21 L571,27 L563,27 L563,42 L557,42 L557,27 L549,27 L549,21 L557,21 Z"/>
+        <!-- connecting wall -->
+        <path d="M700,150 L700,137 L860,137 L860,150 Z"/>
+        <!-- Quadrangle: facade, crenellated central tower, corner turrets -->
+        <path d="M860,150 L860,96 L930,96 L930,48 L941,48 L941,56 L952,56 L952,48 L963,48 L963,56 L974,56 L974,48 L985,48 L985,56 L996,56 L996,48 L1007,48 L1007,96 L1080,96 L1080,150 Z"/>
+        <path d="M921,96 L921,52 L926,43 L931,52 L931,96 Z"/>
+        <path d="M1006,96 L1006,52 L1011,43 L1016,52 L1016,96 Z"/>
+        <!-- east wall and gate post -->
+        <path d="M1080,150 L1080,134 L1166,134 L1166,121 L1178,121 L1178,150 Z"/>
+      </g>
+      <!-- warm-lit windows, flickering gently -->
+      <rect class="win win-a" x="554" y="93" width="5" height="8"/>
+      <rect class="win win-b" x="965" y="70" width="6" height="9"/>
+      <rect class="win win-c" x="242" y="97" width="5" height="6"/>
+    </svg>
+  </div>
 
   <div id="modal-root"></div>
   <div id="display-root"></div>
