@@ -16,13 +16,14 @@ import { initKinetic, playHero } from "./kinetic.js";
 import { initCursor } from "./cursor.js";
 import { initSound } from "./soundscape.js";
 import { fetchLandPath } from "./worldmap.js";
-import { loadFlags } from "./flags.js";
+import { loadCountries } from "./countries.js";
 import { initArrivals } from "./arrivals.js";
 import { initGallery } from "./gallery.js";
 import { initGame } from "./game.js";
 import { initMenu } from "./menu.js";
 import { initClosing } from "./closing.js";
 import { initDisplay } from "./display.js";
+import { pulseSky } from "./atmosphere.js";
 
 const SECTIONS = ["arrivals", "gallery", "game", "menu"];
 
@@ -52,7 +53,7 @@ async function boot() {
   if (params.get("display") === "true") {
     document.getElementById("preloader")?.remove();
     try { await initStore(); } catch (e) { console.error(e); return; }
-    await loadFlags();
+    await loadCountries();
     await initAtmosphere(tier);
     await initDisplay(params);
     return;
@@ -61,7 +62,7 @@ async function boot() {
   // load everything behind the arrival sequence
   const tracker = makeTracker();
   const pStore = tracker.track(initStore());
-  const pFlags = tracker.track(loadFlags());
+  const pCountries = tracker.track(loadCountries());
   tracker.track(fetchLandPath());
   tracker.track(document.fonts ? document.fonts.load("400 90px Fraunces") : Promise.resolve());
   tracker.track(fetch("data/questions.json"));
@@ -83,7 +84,7 @@ async function boot() {
   }
 
   document.getElementById("demo-banner").hidden = state.live;
-  await pFlags; // star tints and flag mosaics need the colour data
+  await pCountries; // Arrivals, Gallery and the game all read palettes from this
 
   await initArrivals();
   initGallery();
@@ -98,10 +99,34 @@ async function boot() {
 
   await preloaderDone;
 
-  // the sky opens: hero type rises, chrome comes alive
-  playHero();
+  // the sky opens: chrome comes alive; the hero itself waits for its
+  // own interaction (tap the brightest star) rather than firing
+  // automatically — see wireHeroStar()
+  wireHeroStar();
   initCursor(tier);
   initSound();
+}
+
+// §5.1 the hero's single inviting action: tap the brightest star to
+// begin. A fallback timer still reveals the line on its own so
+// nothing on the page is permanently gated behind an interaction.
+function wireHeroStar() {
+  const star = document.querySelector(".hero-star");
+  if (!star) { playHero(); return; }
+  let fired = false;
+  const begin = () => {
+    if (fired) return;
+    fired = true;
+    star.classList.add("tapped");
+    document.querySelector(".hero-prompt")?.classList.add("gone");
+    playHero();
+    pulseSky(0.6);
+  };
+  star.addEventListener("click", begin);
+  star.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); begin(); }
+  });
+  setTimeout(begin, 6000); // accessibility fallback — never a hard gate
 }
 
 // keep the nav's gold star on the section in view

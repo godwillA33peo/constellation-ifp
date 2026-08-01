@@ -1,50 +1,49 @@
-// §3 Sky Gallery — an open patch of sky that bleeds off its edges
-// (CSS mask). Drag to pan, pinch (or buttons / ctrl+wheel) to zoom,
-// tap a photo-star and it blooms while the rest of the sky dims.
-// Two parallax star layers drift at different speeds behind the
-// photos so the sky reads as deep, not flat.
-import { state } from "./store.js";
-import { el, handLine, drawIn, mulberry32, hashString, photoOrInitials, reducedMotion } from "./sky.js";
-import { groupByCountry } from "./arrivals.js";
+// §5.3 Sky Gallery — photo-free for now. A free-roaming, pannable,
+// zoomable starfield where each country is a softly pulsing cluster
+// of light in its own palette, labelled with just the country name
+// and fellow count. Drag to pan, pinch/scroll-wheel to zoom, tap a
+// cluster to bloom and show the count. No names, no photos, no moon
+// — this can be swapped for real photography later without
+// restructuring the scene.
+import { allCountries } from "./countries.js";
+import { el, handLine, drawIn, mulberry32, hashString, reducedMotion } from "./sky.js";
 import { bloomTone } from "./soundscape.js";
-import { flagTint, flagImgUrl } from "./flags.js";
-import { esc, openFellowCard } from "./ui.js";
-
-const GROUP_PHOTO = "assets/group-photo.jpg";
+import { esc } from "./ui.js";
 
 export const SKY_W = 1900;
 export const SKY_H = 1240;
 
-export function layoutSky(fellows) {
-  const clusters = [...groupByCountry(fellows).entries()];
-  const cols = Math.ceil(Math.sqrt(clusters.length * (SKY_W / SKY_H)));
-  const rows = Math.ceil(clusters.length / cols);
+export function layoutSky(countries) {
+  const cols = Math.ceil(Math.sqrt(countries.length * (SKY_W / SKY_H)));
+  const rows = Math.ceil(countries.length / cols);
   const cellW = (SKY_W - 240) / cols;
   const cellH = (SKY_H - 240) / rows;
 
-  return clusters.map(([country, members], i) => {
-    const rng = mulberry32(hashString(country) ^ 0x5eed);
+  return countries.map((country, i) => {
+    const rng = mulberry32(hashString(country.name) ^ 0x5eed);
     const cx = 120 + (i % cols) * cellW + cellW * (0.3 + rng() * 0.4);
     const cy = 120 + Math.floor(i / cols) * cellH + cellH * (0.3 + rng() * 0.4);
-    const stars = members.map((f, j) => {
+    // one point of light per fellow, loosely orbiting the cluster centre
+    const points = Array.from({ length: country.fellow_count }, (_, j) => {
       const angle = j * 2.399963 + rng() * 6.28;
-      const radius = members.length === 1 ? 0 : 70 + rng() * 55;
-      return { fellow: f, x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius * 0.8 };
+      const radius = country.fellow_count === 1 ? 0 : 26 + rng() * 22;
+      return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius * 0.85 };
     });
-    return { country, cx, cy, stars, rng };
+    return { country, cx, cy, points, rng };
   });
 }
 
 export function initGallery() {
   const stage = document.getElementById("gallery-sky");
+  const countries = allCountries();
   const small = window.innerWidth < 700;
 
-  // -- parallax star layers (pre-rendered canvases, translate-only) --
+  // -- parallax star layers --
   const layers = [
-    { factor: 0.35, count: small ? 45 : 90, node: null },
-    { factor: 0.65, count: small ? 60 : 120, node: null },
+    { factor: 0.35, count: small ? 45 : 90 },
+    { factor: 0.65, count: small ? 60 : 120 },
   ];
-  layers.forEach((layer, li) => {
+  const layerNodes = layers.map((layer, li) => {
     const c = document.createElement("canvas");
     c.className = "parallax-layer";
     c.width = SKY_W / 2;
@@ -60,11 +59,10 @@ export function initGallery() {
       g.arc(rng() * c.width, rng() * c.height, 0.4 + rng() * (li === 0 ? 0.7 : 1.0), 0, Math.PI * 2);
       g.fill();
     }
-    layer.node = c;
     stage.append(c);
+    return { node: c, factor: layer.factor };
   });
 
-  // -- the photo sky itself --
   const canvas = document.createElement("div");
   canvas.className = "gallery-canvas";
   canvas.style.width = `${SKY_W}px`;
@@ -74,102 +72,60 @@ export function initGallery() {
   canvas.append(svg);
 
   const allPaths = [];
-  const photoStars = [];
+  const clusterEls = [];
 
-  // ---- the moon: the cohort group photo, the largest body in this
-  // sky and the landmark the stars loosely orbit ----
-  const moon = document.createElement("button");
-  moon.className = "moon";
-  moon.style.left = `${SKY_W / 2}px`;
-  moon.style.top = `${SKY_H / 2}px`;
-  moon.setAttribute("aria-label", "The whole cohort — tap to see the group photo full screen");
-  const moonImg = document.createElement("img");
-  moonImg.src = GROUP_PHOTO;
-  moonImg.alt = "Our cohort, together";
-  moonImg.loading = "lazy";
-  moon.append(moonImg);
-  const moonTag = document.createElement("span");
-  moonTag.className = "photo-name";
-  moonTag.textContent = "all of us";
-  moon.append(moonTag);
-  moon.addEventListener("click", (e) => {
-    if (suppressClick) return;
-    e.stopPropagation();
-    openMoonOverlay();
-  });
-  canvas.append(moon);
-
-  for (const cluster of layoutSky(state.fellows)) {
-    for (const s of cluster.stars) {
-      if (s.x === cluster.cx && s.y === cluster.cy) continue;
-      const path = handLine(cluster.cx, cluster.cy, s.x, s.y, cluster.rng, "constellation-line faint");
+  for (const cluster of layoutSky(countries)) {
+    const [c1, c2] = cluster.country.palette;
+    for (const p of cluster.points) {
+      if (p.x === cluster.cx && p.y === cluster.cy) continue;
+      const path = handLine(cluster.cx, cluster.cy, p.x, p.y, cluster.rng, "constellation-line faint");
       svg.append(path);
       allPaths.push(path);
     }
-    svg.append(el("circle", { cx: cluster.cx, cy: cluster.cy, r: 2.2, class: "star-core gold" }));
+
+    const btn = document.createElement("button");
+    btn.className = "palette-cluster";
+    btn.style.left = `${cluster.cx}px`;
+    btn.style.top = `${cluster.cy}px`;
+    btn.style.setProperty("--c1", c1);
+    btn.style.setProperty("--c2", c2 || c1);
+    btn.setAttribute("aria-label", `${cluster.country.name} — ${cluster.country.fellow_count} fellow${cluster.country.fellow_count > 1 ? "s" : ""}`);
+
+    const glow = document.createElement("span");
+    glow.className = "cluster-glow born";
+    btn.append(glow);
+
+    for (const p of cluster.points) {
+      const dot = document.createElement("span");
+      dot.className = "cluster-point";
+      dot.style.left = `${p.x - cluster.cx}px`;
+      dot.style.top = `${p.y - cluster.cy}px`;
+      dot.style.setProperty("--drift-dur", `${7 + cluster.rng() * 6}s`);
+      dot.style.setProperty("--drift-delay", `${-cluster.rng() * 8}s`);
+      btn.append(dot);
+    }
 
     const label = document.createElement("span");
-    label.className = "gallery-anchor-label";
-    label.style.left = `${cluster.cx}px`;
-    label.style.top = `${cluster.cy - 16}px`;
-    label.textContent = cluster.country;
-    canvas.append(label);
+    label.className = "cluster-name";
+    label.textContent = cluster.country.name;
+    const info = document.createElement("span");
+    info.className = "bloom-info";
+    info.innerHTML = `<span class="bi-name">${esc(cluster.country.name)}</span>
+      <span class="bi-meta">${cluster.country.fellow_count} fellow${cluster.country.fellow_count > 1 ? "s" : ""}</span>`;
 
-    for (const s of cluster.stars) {
-      const btn = document.createElement("button");
-      btn.className = "photo-star";
-      btn.style.left = `${s.x}px`;
-      btn.style.top = `${s.y}px`;
-      btn.setAttribute("aria-label",
-        `${s.fellow.name} — ${s.fellow.course}, from ${s.fellow.country}. Tap once to bloom, again for their story.`);
-
-      // each star faintly tinted toward its flag's dominant colour —
-      // the sky is secretly a map of nations
-      btn.style.setProperty("--flag-tint", flagTint(s.fellow.country));
-
-      // behind a bloomed portrait, the flag ripples as slow silk
-      const silk = document.createElement("img");
-      silk.className = "silk-flag";
-      silk.alt = "";
-      silk.loading = "lazy";
-      silk.src = flagImgUrl(s.fellow.country, 320);
-
-      const inner = document.createElement("span");
-      inner.className = "ps-inner";
-      const rng = mulberry32(hashString(s.fellow.id));
-      inner.style.setProperty("--drift-dur", `${7 + rng() * 6}s`);
-      inner.style.setProperty("--drift-delay", `${-rng() * 8}s`);
-      inner.style.setProperty("--drift-x", `${(rng() * 8 - 4).toFixed(1)}px`);
-      inner.style.setProperty("--drift-y", `${(rng() * 8 - 4).toFixed(1)}px`);
-      inner.append(photoOrInitials(s.fellow));
-
-      const nameTag = document.createElement("span");
-      nameTag.className = "photo-name";
-      nameTag.textContent = s.fellow.name.split(" ")[0];
-
-      const info = document.createElement("span");
-      info.className = "bloom-info";
-      info.innerHTML = `<span class="bi-name">${esc(s.fellow.name)}</span>
-        <span class="bi-meta">${esc(s.fellow.course)}</span>
-        <span class="bi-meta">from ${esc(s.fellow.country)}</span>
-        <span class="bi-more">tap again — full story ✦</span>`;
-
-      btn.append(silk, inner, nameTag, info);
-      btn.addEventListener("click", (e) => {
-        if (suppressClick) return;
-        e.stopPropagation();
-        // second tap on a bloomed star opens the full fellow card
-        if (btn.classList.contains("bloom")) openFellowCard(s.fellow);
-        else toggleBloom(btn);
-      });
-      canvas.append(btn);
-      photoStars.push(btn);
-    }
+    btn.append(label, info);
+    btn.addEventListener("click", (e) => {
+      if (suppressClick) return;
+      e.stopPropagation();
+      toggleBloom(btn);
+    });
+    canvas.append(btn);
+    clusterEls.push(btn);
   }
 
   stage.append(canvas);
 
-  // zoom controls (also the no-pinch fallback)
+  // zoom controls
   const controls = document.createElement("div");
   controls.className = "gallery-controls";
   controls.innerHTML = `
@@ -178,8 +134,6 @@ export function initGallery() {
     <button type="button" data-zoom="reset" aria-label="Reset view">✦</button>`;
   stage.append(controls);
 
-  // touch: page scroll wins by default; the explore toggle hands the
-  // canvas over to drag-pan (§5.3 — vertical scroll must still work)
   let exploring = false;
   stage.style.touchAction = "pan-y";
   const exploreBtn = document.createElement("button");
@@ -196,26 +150,10 @@ export function initGallery() {
   });
   stage.append(exploreBtn);
 
-  function openMoonOverlay() {
-    const scrim = document.createElement("div");
-    scrim.className = "modal-scrim moon-scrim";
-    scrim.innerHTML = `
-      <figure class="moon-full">
-        <button class="modal-close" aria-label="Close">✕</button>
-        <img src="${GROUP_PHOTO}" alt="Our whole cohort together">
-        <figcaption>All of us, one night.</figcaption>
-      </figure>`;
-    const close = () => { scrim.remove(); document.removeEventListener("keydown", onKey); };
-    const onKey = (e) => { if (e.key === "Escape") close(); };
-    scrim.addEventListener("click", (e) => { if (e.target === scrim || e.target.closest(".modal-close")) close(); });
-    document.addEventListener("keydown", onKey);
-    document.getElementById("modal-root").append(scrim);
-    bloomTone();
-  }
-
   // -- camera state --
   const view = { x: 0, y: 0, s: 1 };
   const S_MIN = 0.5, S_MAX = 2.6;
+  let suppressClick = false;
 
   function clampView() {
     view.s = Math.min(S_MAX, Math.max(S_MIN, view.s));
@@ -225,16 +163,13 @@ export function initGallery() {
     view.x = Math.min(80, Math.max(minX, view.x));
     view.y = Math.min(80, Math.max(minY, view.y));
   }
-
   function apply() {
     clampView();
     canvas.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.s})`;
-    layers.forEach((l) => {
-      l.node.style.transform =
-        `translate(${view.x * l.factor}px, ${view.y * l.factor}px) scale(${view.s})`;
+    layerNodes.forEach((l) => {
+      l.node.style.transform = `translate(${view.x * l.factor}px, ${view.y * l.factor}px) scale(${view.s})`;
     });
   }
-
   function zoomAt(px, py, factor) {
     const ns = Math.min(S_MAX, Math.max(S_MIN, view.s * factor));
     const k = ns / view.s;
@@ -243,7 +178,6 @@ export function initGallery() {
     view.s = ns;
     apply();
   }
-
   function resetView() {
     view.s = Math.max(S_MIN, Math.min(1, stage.clientHeight / SKY_H * 1.4));
     view.x = (stage.clientWidth - SKY_W * view.s) / 2;
@@ -262,13 +196,11 @@ export function initGallery() {
     else resetView();
   });
 
-  // -- pointer pan + pinch --
   const pointers = new Map();
-  let lastMid = null, lastDist = 0, moved = 0, suppressClick = false;
+  let lastMid = null, lastDist = 0, moved = 0;
 
   stage.addEventListener("pointerdown", (e) => {
     if (e.target.closest(".gallery-controls") || e.target.closest(".explore-toggle")) return;
-    // touch pans only in explore mode; the page keeps its scroll
     if (e.pointerType !== "mouse" && !exploring) return;
     stage.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -280,7 +212,6 @@ export function initGallery() {
       lastDist = Math.hypot(a.x - b.x, a.y - b.y);
     }
   });
-
   stage.addEventListener("pointermove", (e) => {
     const p = pointers.get(e.pointerId);
     if (!p) return;
@@ -304,22 +235,17 @@ export function initGallery() {
       moved += 10;
     }
   });
-
   const endPointer = (e) => {
     pointers.delete(e.pointerId);
     if (pointers.size < 2) { lastMid = null; lastDist = 0; }
     if (pointers.size === 0) {
       stage.classList.remove("dragging");
-      if (moved > 8) {
-        suppressClick = true;
-        setTimeout(() => { suppressClick = false; }, 120);
-      }
+      if (moved > 8) { suppressClick = true; setTimeout(() => { suppressClick = false; }, 120); }
     }
   };
   stage.addEventListener("pointerup", endPointer);
   stage.addEventListener("pointercancel", endPointer);
 
-  // trackpad pinch arrives as ctrl+wheel; plain wheel keeps scrolling the page
   stage.addEventListener("wheel", (e) => {
     if (!e.ctrlKey) return;
     e.preventDefault();
@@ -327,7 +253,6 @@ export function initGallery() {
     zoomAt(e.clientX - rect.left, e.clientY - rect.top, e.deltaY < 0 ? 1.12 : 1 / 1.12);
   }, { passive: false });
 
-  // keyboard pan/zoom for the focused stage
   stage.addEventListener("keydown", (e) => {
     const step = 60;
     if (e.key === "ArrowLeft") { view.x += step; apply(); }
@@ -340,42 +265,37 @@ export function initGallery() {
     e.preventDefault();
   });
 
-  // -- bloom --
   function toggleBloom(btn) {
-    const current = canvas.querySelector(".photo-star.bloom");
+    const current = canvas.querySelector(".palette-cluster.bloom");
     if (current && current !== btn) current.classList.remove("bloom");
+    if (current === btn) { btn.classList.remove("bloom"); stage.classList.remove("dimmed"); return; }
     btn.classList.add("bloom");
     stage.classList.add("dimmed");
     bloomTone();
   }
   stage.addEventListener("click", (e) => {
-    if (suppressClick || e.target.closest(".photo-star") || e.target.closest(".gallery-controls")) return;
-    const current = canvas.querySelector(".photo-star.bloom");
+    if (suppressClick || e.target.closest(".palette-cluster") || e.target.closest(".gallery-controls")) return;
+    const current = canvas.querySelector(".palette-cluster.bloom");
     if (current) { current.classList.remove("bloom"); stage.classList.remove("dimmed"); }
   });
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (document.querySelector(".modal-scrim")) return; // let Escape close the card first
-    const current = canvas.querySelector(".photo-star.bloom");
+    const current = canvas.querySelector(".palette-cluster.bloom");
     if (current) { current.classList.remove("bloom"); stage.classList.remove("dimmed"); }
   });
 
-  // -- stars appear one at a time at dusk --
   let bornPlayed = false;
   const io = new IntersectionObserver((entries) => {
     if (!entries.some((x) => x.isIntersecting) || bornPlayed) return;
     bornPlayed = true;
     io.disconnect();
     if (reducedMotion()) {
-      photoStars.forEach((b) => b.classList.add("born"));
-      drawInStatic();
+      clusterEls.forEach((b) => b.classList.add("born"));
       return;
     }
-    const order = [...photoStars].sort(() => Math.random() - 0.5);
+    const order = [...clusterEls].sort(() => Math.random() - 0.5);
     order.forEach((b, i) => setTimeout(() => b.classList.add("born"), 120 + i * 90));
     setTimeout(() => drawIn(allPaths, { duration: 900, stagger: 30 }), 400);
   }, { threshold: 0.15 });
   io.observe(stage);
-
-  function drawInStatic() { /* lines are already visible; nothing to animate */ }
 }

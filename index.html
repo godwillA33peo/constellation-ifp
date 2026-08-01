@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Ireland Fellows — Galway '26</title>
-  <meta name="description" content="A night sky for our cohort. 35 fellows, 22 countries, one Galway — every fellow a star, every home country a point of origin.">
+  <meta name="description" content="A night sky for our cohort. 35 of us, 22 countries, one Galway — every country a point of light in a sky that's building toward one night.">
   <meta property="og:title" content="Ireland Fellows — Galway '26">
-  <meta property="og:description" content="35 fellows · 22 countries · one sky. Play the Star Chart, find yourself in the gallery, bring your country to the table.">
+  <meta property="og:description" content="35 of us · 22 countries · one sky. Watch the sky arrive, play the Star Chart, tell us what you want to eat.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://godwilla33peo.github.io/constellation-ifp/">
   <meta property="og:image" content="https://godwilla33peo.github.io/constellation-ifp/assets/share-card.jpg">
@@ -46,7 +46,11 @@
   <main id="app">
 
     <section id="hero" class="section hero" aria-label="Welcome">
-      <h1 class="hero-title" data-kinetic>The sky we made together</h1>
+      <button class="hero-star" aria-label="Tap to begin — find your light">
+        <span class="hero-star-glyph" aria-hidden="true">✦</span>
+      </button>
+      <p class="hero-prompt" aria-hidden="true">find your light</p>
+      <h1 class="hero-title" data-kinetic>You are the light that arrived.</h1>
       <p class="hero-sub">Ireland Fellows Programme · University of Galway · 2025–26</p>
       <p class="scroll-hint" aria-hidden="true">scroll — the night begins <span>✦</span></p>
     </section>
@@ -59,11 +63,11 @@
     <section id="arrivals" class="section" aria-labelledby="arrivals-title">
       <div class="section-intro">
         <h1 id="arrivals-title" data-kinetic>Arrivals</h1>
-        <p>Twenty-two countries, one destination. Watch the community grow, one of us
-           at a time — then tap any country to meet its fellows.</p>
+        <p>Twenty-two countries, one destination. Watch the sky converge on Galway,
+           colour by colour — then tap any country to see how many of us it sent.</p>
       </div>
       <div id="arrivals-map" class="map-wrap" role="img"
-           aria-label="World map: each fellow's flag turns to stardust and flies from their home country to Galway, where the huddle of arrivals grows to 35"></div>
+           aria-label="World map: each country's point of light arcs to Galway in its own colour, building Galway into a single glow made of all twenty-two"></div>
     </section>
 
     <div class="ribbon" aria-hidden="true"><div class="ribbon-track">
@@ -74,11 +78,11 @@
     <section id="gallery" class="section" aria-labelledby="gallery-title">
       <div class="section-intro">
         <h1 id="gallery-title" data-kinetic>Sky Gallery</h1>
-        <p>The same sky, closer. Drift between the stars, find the moon we all share,
-           tap a star and it blooms.</p>
+        <p>The same sky, closer. Drift between twenty-two clusters of colour —
+           tap one and it blooms to show how many of us call it home.</p>
       </div>
       <div id="gallery-sky" class="gallery-stage" tabindex="0"
-           aria-label="Pannable sky of fellow photos around the group-photo moon. Drag to pan, pinch or use the buttons to zoom, tap a photo to see who it is."></div>
+           aria-label="Pannable sky of country colour-clusters. Drag to pan, pinch or use the buttons to zoom, tap a cluster to see its fellow count."></div>
     </section>
 
     <div class="ribbon" aria-hidden="true"><div class="ribbon-track">
@@ -89,22 +93,23 @@
     <section id="game" class="section" aria-labelledby="game-title">
       <div class="section-intro">
         <h1 id="game-title" data-kinetic>Star Chart</h1>
-        <p>Ten questions about this city and this cohort, one comet each. Every right answer
-           sets a star in a constellation — get all ten and see what we've been drawing.</p>
+        <p>Ten questions about this city and the countries in our sky, one comet each.
+           Every right answer sets a star in a constellation — get all ten and see
+           what we've been drawing.</p>
       </div>
       <div id="game-root" class="game-root"></div>
     </section>
 
     <div class="ribbon" aria-hidden="true"><div class="ribbon-track">
-      <span>Bring your country</span><span>✦</span><span>to the table</span><span>✦</span>
-      <span>Bring your country</span><span>✦</span><span>to the table</span><span>✦</span>
+      <span>What do you want</span><span>✦</span><span>at the party?</span><span>✦</span>
+      <span>What do you want</span><span>✦</span><span>at the party?</span><span>✦</span>
     </div></div>
 
     <section id="menu" class="section" aria-labelledby="menu-title">
       <div class="section-intro">
         <h1 id="menu-title" data-kinetic>The Menu</h1>
-        <p>Bring your country to the table. Add a dish or a drink from home — or any
-           party wish — and watch the feast grow under the stars. Every plate lights
+        <p>What do you want to eat and drink on the night? Vote for a preset or add
+           your own — every vote is a point of light joining the wishlist, and lights
            a lantern in Galway.</p>
       </div>
       <div id="menu-root" class="trade-root"></div>
@@ -113,7 +118,7 @@
     <section id="closing" class="section section-last closing" aria-label="Closing">
       <div id="closing-constellation" class="closing-constellation"></div>
       <!-- TODO: final line is working copy — Godwill may replace -->
-      <p class="closing-line" data-kinetic>The sky, from the ground.</p>
+      <p class="closing-line" data-kinetic>One sky, built from every light that arrived.</p>
       <p class="site-footer-line">Made by us, for us — Ireland Fellows, University of Galway. <span aria-hidden="true">✦</span></p>
     </section>
 

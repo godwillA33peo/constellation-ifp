@@ -7,10 +7,12 @@
 //
 // The anon key is safe to publish in frontend code: it only allows
 // what the Row Level Security policies in supabase/schema.sql permit
-// (read everything, insert scores and skills — nothing else).
+// (read the leaderboard/menu, insert scores and wishlist votes —
+// nothing else; no personal data is ever stored in Supabase).
 //
-// While both are empty the site runs in demo mode: fellows load from
-// data/fellows-seed-data.json and scores/skills save to localStorage.
+// While both are empty the site runs in demo mode: scores and Menu
+// votes save to localStorage instead of Supabase. The roster itself
+// (data/countries.json) is static and needs no backend either way.
 // ============================================================
 
 export const SUPABASE_URL = "";

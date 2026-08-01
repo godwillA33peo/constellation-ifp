@@ -146,12 +146,13 @@ function pluck(freq, gain = 0.05, decay = 1.1) {
 
 /* ---------- the public voices ---------- */
 
-// A-minor pentatonic, low A upward — one step per arrival
+// A-minor pentatonic, low A upward — one quick pluck per arrival,
+// stepping up across the whole brisk ~11s cascade
 const PENT = [0, 3, 5, 7, 10];
 export function arrivalNote(index, total = 35) {
   const span = 24; // two octaves across the whole sequence
   const semis = PENT[index % 5] + 12 * Math.floor((index / total) * (span / 12));
-  pluck(220 * Math.pow(2, semis / 12), 0.045, 1.25);
+  pluck(220 * Math.pow(2, semis / 12), 0.04, 0.5);
 }
 
 // the huddle completes: a gentle resolving chord

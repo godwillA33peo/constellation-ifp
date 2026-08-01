@@ -1,6 +1,11 @@
 // Data layer. One interface, two backends:
 //  - Supabase (shared, live) when keys are set in config.js
-//  - seed JSON + localStorage (this device only) otherwise
+//  - localStorage (this device only) otherwise
+//
+// v4.2: no personal data lives here any more — the roster (countries
+// only, no names) is static JSON loaded via countries.js. This layer
+// only ever persists what visitors submit themselves: game scores
+// and Menu wishlist votes.
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
 const LS_SCORES = "constellation_leaderboard";
@@ -8,26 +13,11 @@ const LS_MENU = "constellation_menu";
 const LS_VOTED = "constellation_menu_voted";
 
 export const state = {
-  fellows: [],
   live: false, // true when Supabase is connected
 };
 
 let supabase = null;
 let leaderboardListeners = [];
-
-// -- helpers ---------------------------------------------------
-
-const fromRow = (r) => ({
-  id: r.id,
-  name: r.name,
-  country: r.country,
-  lat: r.lat,
-  lng: r.lng,
-  course: r.course,
-  university: r.university,
-  photoUrl: r.photo_url ?? r.photoUrl ?? "",
-  funFact: r.fun_fact ?? r.funFact ?? "",
-});
 
 function readLS(key) {
   try { return JSON.parse(localStorage.getItem(key)) || []; }
@@ -44,9 +34,8 @@ export async function initStore() {
     try {
       const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
       supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      const { data, error } = await supabase.from("fellows").select("*").order("country");
+      const { error } = await supabase.from("leaderboard").select("id").limit(1);
       if (error) throw error;
-      state.fellows = data.map(fromRow);
       state.live = true;
       subscribeLeaderboard();
       return state;
@@ -55,14 +44,13 @@ export async function initStore() {
       supabase = null;
     }
   }
-  const res = await fetch("data/fellows.json");
-  const seed = await res.json();
-  state.fellows = seed.fellows.map(fromRow);
   state.live = false;
   return state;
 }
 
 // -- leaderboard -----------------------------------------------
+// leaderboard names are self-opted by the player at the moment they
+// finish a round — the one place a name appears on the public site.
 
 export async function getLeaderboard(limit = 50) {
   if (supabase) {
@@ -113,57 +101,60 @@ function subscribeLeaderboard() {
     .subscribe();
 }
 
-// -- The Menu ("bring your country to the table") ---------------
+// -- The Menu: an anonymous wishlist/poll -----------------------
+// Not "bring a dish" — just what people want to eat and drink.
+// A submission is a preference vote, nothing more; no attribution
+// beyond an optional first name.
 
 export async function getMenu() {
   if (supabase) {
-    const [{ data: items, error }, { data: votes }] = await Promise.all([
-      supabase.from("menu").select("id, name, item, kind, country, note, created_at")
-        .order("created_at", { ascending: false }),
-      supabase.from("menu_votes").select("item_id"),
-    ]);
+    const { data, error } = await supabase
+      .from("menu")
+      .select("id, item, kind, votes")
+      .order("votes", { ascending: false });
     if (error) { console.warn(error); return []; }
-    const counts = {};
-    (votes || []).forEach((v) => { counts[v.item_id] = (counts[v.item_id] || 0) + 1; });
-    return items.map((r) => ({ ...r, votes: counts[r.id] || 0 }));
+    return data;
   }
   return readLS(LS_MENU);
 }
 
-export async function addMenuItem({ name, item, kind, country, note }) {
-  name = name.trim().slice(0, 60);
-  item = item.trim().slice(0, 80);
-  note = (note || "").trim().slice(0, 120);
+// vote for an existing item, or add a new one ("something else")
+export async function voteMenuItem({ item, kind }) {
+  item = item.trim().slice(0, 60);
   kind = kind === "drink" ? "drink" : "food";
-  if (!name || !item) throw new Error("A name and a dish (or drink), please.");
+  if (!item) throw new Error("Tell us what you're craving.");
   if (supabase) {
-    const { error } = await supabase.from("menu").insert({ name, item, kind, country, note });
+    const { data: existing } = await supabase
+      .from("menu").select("id, votes").eq("kind", kind).ilike("item", item).limit(1);
+    if (existing?.length) {
+      const { error } = await supabase.from("menu")
+        .update({ votes: existing[0].votes + 1 }).eq("id", existing[0].id);
+      if (error) throw error;
+      return existing[0].id;
+    }
+    const { data, error } = await supabase.from("menu")
+      .insert({ item, kind, votes: 1 }).select("id").single();
     if (error) throw error;
-  } else {
-    const rows = readLS(LS_MENU);
-    rows.unshift({
-      id: `local-${Date.now()}`, name, item, kind, country, note,
-      votes: 0, created_at: new Date().toISOString(),
-    });
+    return data.id;
+  }
+  const rows = readLS(LS_MENU);
+  const match = rows.find((r) => r.kind === kind && r.item.toLowerCase() === item.toLowerCase());
+  if (match) {
+    match.votes += 1;
     writeLS(LS_MENU, rows);
+    return match.id;
   }
+  const id = `local-${Date.now()}`;
+  rows.unshift({ id, item, kind, votes: 1 });
+  writeLS(LS_MENU, rows);
+  return id;
 }
 
-// one upvote per item per device
-export function hasVoted(itemId) {
-  return readLS(LS_VOTED).includes(itemId);
+// one vote per browser per item, tracked client-side only (the
+// wishlist itself is anonymous)
+export function hasVotedFor(key) {
+  return readLS(LS_VOTED).includes(key);
 }
-
-export async function upvoteMenuItem(itemId) {
-  if (hasVoted(itemId)) return false;
-  if (supabase) {
-    const { error } = await supabase.from("menu_votes").insert({ item_id: itemId });
-    if (error) throw error;
-  } else {
-    const rows = readLS(LS_MENU);
-    const row = rows.find((r) => r.id === itemId);
-    if (row) { row.votes = (row.votes || 0) + 1; writeLS(LS_MENU, rows); }
-  }
-  writeLS(LS_VOTED, [...readLS(LS_VOTED), itemId]);
-  return true;
+export function markVoted(key) {
+  writeLS(LS_VOTED, [...readLS(LS_VOTED), key]);
 }

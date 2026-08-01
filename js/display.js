@@ -2,14 +2,12 @@
 // No controls: cycles Arrivals map → Sky Gallery → live leaderboard.
 // Winner reveal is manual: press R (or load with ?reveal=true).
 // Esc returns from the reveal to the cycle.
-import { state, getLeaderboard, onLeaderboardChange } from "./store.js";
+import { getLeaderboard, onLeaderboardChange } from "./store.js";
 import { el, makeStar, handLine, drawIn, mulberry32, reducedMotion } from "./sky.js";
 import { MAP_W, MAP_H, project, fetchLandPath, graticule } from "./worldmap.js";
-import { groupByCountry, clusterPositions } from "./arrivals.js";
+import { allCountries, totalFellows } from "./countries.js";
 import { layoutSky, SKY_W, SKY_H } from "./gallery.js";
 import { renderLeaderboard } from "./game.js";
-import { photoOrInitials } from "./sky.js";
-import { esc } from "./ui.js";
 
 const PHASE_MS = 18000;
 
@@ -58,7 +56,7 @@ function showPhase(i) {
 function buildMapPhase() {
   const wrap = document.createElement("div");
   wrap.className = "display-phase";
-  wrap.innerHTML = `<h2>One sky, <span class="gold">${state.fellows.length} stars</span></h2>`;
+  wrap.innerHTML = `<h2>One sky, <span class="gold">${totalFellows()} of us</span></h2>`;
 
   const holder = document.createElement("div");
   holder.className = "display-map";
@@ -70,22 +68,21 @@ function buildMapPhase() {
     if (d) landGroup.append(el("path", { class: "map-land", d }));
   });
 
+  const galway = project(53.27, -9.05);
   const paths = [];
-  for (const [country, fellows] of groupByCountry(state.fellows)) {
-    const rng = mulberry32(country.length * 7919);
-    const anchor = project(fellows[0].lat, fellows[0].lng);
-    const points = clusterPositions(fellows, anchor);
-    for (let i = 1; i < points.length; i++) {
-      const p = handLine(points[i - 1][0], points[i - 1][1], points[i][0], points[i][1], rng);
-      svg.append(p);
-      paths.push(p);
-    }
-    points.forEach((pt) => svg.append(makeStar(pt[0], pt[1], 2.6, { rng })));
-    const label = el("text", { class: "cluster-label", x: anchor[0], y: anchor[1] + 26 });
-    label.textContent = country;
-    label.setAttribute("style", "fill: rgba(245,243,238,0.35); font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; text-anchor: middle;");
+  for (const country of allCountries()) {
+    const rng = mulberry32(country.name.length * 7919);
+    const anchor = project(country.lat, country.lng);
+    const p = handLine(anchor[0], anchor[1], galway[0], galway[1], rng, "constellation-line faint");
+    svg.append(p);
+    paths.push(p);
+    svg.append(makeStar(anchor[0], anchor[1], 2.2 + country.fellow_count * 0.3, { gold: false, rng }));
+    const label = el("text", { class: "cluster-label", x: anchor[0], y: anchor[1] + 14 });
+    label.textContent = country.name;
+    label.setAttribute("style", "fill: rgba(245,243,238,0.35); font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; text-anchor: middle;");
     svg.append(label);
   }
+  svg.append(makeStar(galway[0], galway[1], 3.4, { gold: true }));
 
   holder.append(svg);
   wrap.append(holder);
@@ -114,18 +111,21 @@ function buildGalleryPhase() {
   const svg = el("svg", { viewBox: `0 0 ${SKY_W} ${SKY_H}`, width: SKY_W, height: SKY_H, "aria-hidden": "true" });
   canvas.append(svg);
 
-  for (const cluster of layoutSky(state.fellows)) {
-    for (const s of cluster.stars) {
-      if (!(s.x === cluster.cx && s.y === cluster.cy)) {
-        svg.append(handLine(cluster.cx, cluster.cy, s.x, s.y, cluster.rng, "constellation-line faint"));
+  for (const cluster of layoutSky(allCountries())) {
+    const [c1, c2] = cluster.country.palette;
+    for (const p of cluster.points) {
+      if (!(p.x === cluster.cx && p.y === cluster.cy)) {
+        svg.append(handLine(cluster.cx, cluster.cy, p.x, p.y, cluster.rng, "constellation-line faint"));
       }
-      const btn = document.createElement("span");
-      btn.className = "photo-star";
-      btn.style.left = `${s.x}px`;
-      btn.style.top = `${s.y}px`;
-      btn.append(photoOrInitials(s.fellow));
-      canvas.append(btn);
     }
+    const glow = document.createElement("span");
+    glow.className = "palette-cluster display-cluster";
+    glow.style.left = `${cluster.cx}px`;
+    glow.style.top = `${cluster.cy}px`;
+    glow.style.setProperty("--c1", c1);
+    glow.style.setProperty("--c2", c2 || c1);
+    glow.innerHTML = `<span class="cluster-glow born"></span><span class="cluster-name">${cluster.country.name}</span>`;
+    canvas.append(glow);
   }
 
   holder.append(canvas);

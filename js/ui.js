@@ -1,19 +1,22 @@
-// Small shared UI pieces: the fellow card modal.
-import { photoOrInitials } from "./sky.js";
+// Small shared UI pieces: the country card modal. No individual
+// names or photos anywhere on the public site — a tap on a country
+// (Arrivals, Sky Gallery) shows only its fellow count, lit in that
+// country's palette.
+import { paletteOf } from "./countries.js";
 
 const modalRoot = () => document.getElementById("modal-root");
 
-export function openFellowCard(fellow) {
+export function openCountryCard(country) {
   closeModal();
   const scrim = document.createElement("div");
   scrim.className = "modal-scrim";
   scrim.addEventListener("click", (e) => { if (e.target === scrim) closeModal(); });
 
   const card = document.createElement("div");
-  card.className = "fellow-card";
+  card.className = "fellow-card country-card";
   card.setAttribute("role", "dialog");
   card.setAttribute("aria-modal", "true");
-  card.setAttribute("aria-label", fellow.name);
+  card.setAttribute("aria-label", country.name);
 
   const close = document.createElement("button");
   close.className = "modal-close";
@@ -21,17 +24,16 @@ export function openFellowCard(fellow) {
   close.textContent = "✕";
   close.addEventListener("click", closeModal);
 
-  const photo = photoOrInitials(fellow, "card-photo");
+  const [c1, c2] = paletteOf(country.name);
+  const glow = document.createElement("div");
+  glow.className = "country-glow";
+  glow.style.background = `radial-gradient(circle, ${c1}, ${c2 || c1}, transparent 72%)`;
 
-  card.append(close, photo);
-  // fields still blank in the data simply don't render
+  card.append(close, glow);
   card.insertAdjacentHTML(
     "beforeend",
-    `<h2>${esc(fellow.name)}</h2>
-     <p class="card-country">${esc(fellow.country)}</p>
-     ${fellow.course ? `<p class="card-course">${esc(fellow.course)}</p>` : ""}
-     ${fellow.university ? `<p class="card-uni">${esc(fellow.university)}</p>` : ""}
-     ${fellow.funFact ? `<p class="card-fact">“${esc(fellow.funFact)}”</p>` : ""}`
+    `<h2>${esc(country.name)}</h2>
+     <p class="card-country">${country.fellow_count} fellow${country.fellow_count > 1 ? "s" : ""} from here</p>`
   );
 
   scrim.append(card);

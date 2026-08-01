@@ -1,13 +1,13 @@
-// §4 Star Chart — ten questions themed on Galway and the cohort,
-// one comet each. The comet's arc IS the countdown; every correct
-// answer sets a star in a faint background constellation that, at
-// ten from ten, reveals itself as a Claddagh ring. Streaks brighten
-// the whole sky (via skyfield).
-import { state, getLeaderboard, submitScore, onLeaderboardChange } from "./store.js";
-import { el, handLine, drawIn, mulberry32, hashString, reducedMotion } from "./sky.js";
+// §5.4 Star Chart — ten questions themed on Galway and the cohort's
+// countries (no individual names). One comet each; the comet's arc
+// IS the countdown; every correct answer sets a star in a faint
+// background constellation that, at ten from ten, reveals itself as
+// a Claddagh ring. Streaks brighten the whole sky.
+import { getLeaderboard, submitScore, onLeaderboardChange } from "./store.js";
+import { el, handLine, drawIn, mulberry32, reducedMotion } from "./sky.js";
 import { setSkyBoost } from "./atmosphere.js";
 import { chime, fizzleSound, claddaghChime } from "./soundscape.js";
-import { flagColors } from "./flags.js";
+import { allCountries, paletteOf } from "./countries.js";
 import { esc } from "./ui.js";
 
 const QUESTIONS = 10;
@@ -50,84 +50,69 @@ function shuffle(arr, rng = Math.random) {
 }
 
 // options in, answer index tracked through the shuffle
-function mcq(kind, clue, options, answerIdx, { note = "", photo = null } = {}) {
+function mcq(kind, clue, options, answerIdx, { note = "", photo = null, palette = null } = {}) {
   const paired = options.map((text, i) => ({ text, right: i === answerIdx }));
   const mixed = shuffle(paired);
-  return { kind, clue, photo, note, options: mixed.map((o) => o.text), answerIdx: mixed.findIndex((o) => o.right) };
-}
-
-function fellowQuestion(fellows) {
-  const fellow = fellows[Math.floor(Math.random() * fellows.length)];
-  const roll = Math.random();
-  // fall back gracefully while course/fact data is still blank
-  const type = roll < 0.4 && fellow.funFact ? "fact"
-    : roll < 0.7 && fellow.course ? "course"
-    : "country";
-  let kind, clue, pool;
-  if (type === "fact") {
-    kind = "Guess the fellow";
-    clue = `“${fellow.funFact}”`;
-    pool = fellows.filter((f) => f.id !== fellow.id);
-  } else if (type === "course") {
-    kind = "Guess the fellow";
-    clue = `Doing ${fellow.course}${fellow.university ? ` at ${fellow.university}` : ""}. Who is it?`;
-    pool = fellows.filter((f) => f.id !== fellow.id && f.course !== fellow.course);
-  } else {
-    kind = "Guess the fellow";
-    clue = `Calls ${fellow.country} home.`;
-    pool = fellows.filter((f) => f.country !== fellow.country);
-  }
-  const distractors = [];
-  for (const f of shuffle(pool)) {
-    if (distractors.length === 3) break;
-    if (type === "country" && distractors.some((d) => d.country === f.country)) continue;
-    distractors.push(f);
-  }
-  const names = [fellow.name, ...distractors.map((d) => d.name)];
-  const q = mcq(kind, clue, names, 0);
-  q.flagCountry = fellow.country; // burst in their flag's colours
-  return q;
-}
-
-// §5.4 round 3 — the group photo appears: tap the right face
-function findQuestion(fellows, faces) {
-  const candidates = faces.coords.filter((c) => fellows.some((f) => f.name === c.name));
-  const pick = candidates[Math.floor(Math.random() * candidates.length)];
-  const fellow = fellows.find((f) => f.name === pick.name);
   return {
-    kind: "Find the fellow",
-    type: "find",
-    clue: `Find ${pick.name}!`,
-    photo: faces.photo,
-    coords: faces.coords,
-    target: pick.name,
-    flagCountry: fellow?.country,
-    note: "",
-    options: [],
+    kind, clue, photo, note, palette,
+    options: mixed.map((o) => o.text),
+    answerIdx: mixed.findIndex((o) => o.right),
   };
 }
 
-export function buildRound(fellows, quiz) {
+// §5.4 round 2 — "guess the country": a fact we actually know (how
+// many of us it sent) rather than an invented trivia fact.
+function countryTallyQuestion(countries) {
+  const byThree = countries.filter((c) => c.fellow_count === 3);
+  if (Math.random() < 0.5 && byThree.length) {
+    const answer = byThree[Math.floor(Math.random() * byThree.length)];
+    const pool = countries.filter((c) => c.fellow_count < 3);
+    const distractors = shuffle(pool).slice(0, 3);
+    const names = [answer.name, ...distractors.map((d) => d.name)];
+    const q = mcq("Guess the country", "Which country sent three of us to Galway?", names, 0);
+    q.palette = answer.palette;
+    return q;
+  }
+  const n = 1 + Math.floor(Math.random() * 3);
+  const matching = countries.filter((c) => c.fellow_count === n);
+  const answer = matching[Math.floor(Math.random() * matching.length)];
+  const pool = countries.filter((c) => c.fellow_count !== n);
+  const distractors = shuffle(pool).slice(0, 3);
+  const names = [answer.name, ...distractors.map((d) => d.name)];
+  const q = mcq(
+    "Guess the country",
+    `Which country sent exactly ${n === 1 ? "one fellow" : `${n} fellows`} to Galway?`,
+    names, 0
+  );
+  q.palette = answer.palette;
+  return q;
+}
+
+// a palette round: show a country's colours as glowing shapes, no
+// name, no flag — guess which country they belong to
+function paletteQuestion(countries) {
+  const answer = countries[Math.floor(Math.random() * countries.length)];
+  const distractors = shuffle(countries.filter((c) => c.name !== answer.name)).slice(0, 3);
+  const names = [answer.name, ...distractors.map((d) => d.name)];
+  const q = mcq("Whose colours are these?", "A point of light, somewhere in our sky. Whose is it?", names, 0);
+  q.palette = answer.palette;
+  q.paletteSwatch = answer.palette;
+  return q;
+}
+
+export function buildRound(countries, quiz) {
   const qs = [];
-  const usedFellowClues = new Set();
-  const canFind = quiz.faces && quiz.faces.coords?.length >= 4;
-  const guessCount = canFind ? 2 : 4;
-  while (qs.length < guessCount) {
-    const q = fellowQuestion(fellows);
-    if (usedFellowClues.has(q.clue)) continue;
-    usedFellowClues.add(q.clue);
+
+  const tallySeen = new Set();
+  while (qs.filter((q) => q.kind === "Guess the country").length < 2) {
+    const q = countryTallyQuestion(countries);
+    if (tallySeen.has(q.clue)) continue;
+    tallySeen.add(q.clue);
     qs.push(q);
   }
-  if (canFind) {
-    const seen = new Set();
-    while (qs.filter((q) => q.type === "find").length < 2) {
-      const q = findQuestion(fellows, quiz.faces);
-      if (seen.has(q.target)) continue;
-      seen.add(q.target);
-      qs.push(q);
-    }
-  }
-  for (const item of shuffle(quiz.lore).slice(0, 2)) {
+  qs.push(paletteQuestion(countries));
+
+  for (const item of shuffle(quiz.lore).slice(0, 3)) {
     qs.push(mcq("Galway lore", item.q, item.options, item.answer, { note: item.note }));
   }
   for (const item of shuffle(quiz.places).slice(0, 2)) {
@@ -211,7 +196,7 @@ class Comet {
     };
   }
 
-  // colors: burst in a fellow's flag colours; gold otherwise
+  // colours: burst in the question's country palette; gold otherwise
   burst(colors = null) { this.setState("burst", 38, "gold", colors); }
   fizzle() { this.setState("fizzle", 14, "smoke"); }
   land() { this.setState("landed", 0); }
@@ -246,7 +231,6 @@ class Comet {
       const head = this.pos(t);
       this.trail.push(head);
       if (this.trail.length > 16) this.trail.shift();
-      // shed a spark now and then
       if (Math.random() < 0.35) {
         this.sparks.push({
           x: head.x, y: head.y,
@@ -255,7 +239,6 @@ class Comet {
           life: 0.8, decay: 0.03, gold: true,
         });
       }
-      // tail
       for (let i = 0; i < this.trail.length; i++) {
         const p = this.trail[i];
         const k = i / this.trail.length;
@@ -265,7 +248,6 @@ class Comet {
         ctx.arc(p.x, p.y, 1 + k * 2.6, 0, Math.PI * 2);
         ctx.fill();
       }
-      // head
       ctx.globalAlpha = 1;
       const g = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 9);
       g.addColorStop(0, "rgba(255,250,235,1)");
@@ -285,11 +267,10 @@ class Comet {
       ctx.fill();
     }
 
-    // sparks
     for (const s of this.sparks) {
       s.x += s.vx;
       s.y += s.vy;
-      s.vy += s.gold ? 0.05 : -0.01; // gold falls, smoke rises
+      s.vy += s.gold ? 0.05 : -0.01;
       s.life -= s.decay;
       if (s.life <= 0) continue;
       ctx.globalAlpha = Math.max(0, s.life) * (s.gold ? 0.9 : 0.4);
@@ -316,11 +297,11 @@ function makeFallbackTimer(container, durationMs) {
   line.style.transition = `transform ${durationMs}ms linear`;
   line.getBoundingClientRect();
   line.style.transform = "scaleX(0)";
+  const t0 = performance.now();
   const iv = setInterval(() => {
     const left = Math.max(0, SECONDS - Math.round((performance.now() - t0) / 1000));
     count.textContent = left;
   }, 500);
-  const t0 = performance.now();
   return {
     burst() {}, fizzle() {}, land() {},
     destroy() { clearInterval(iv); container.innerHTML = ""; },
@@ -333,7 +314,7 @@ function renderStart() {
   setSkyBoost(0);
   root.innerHTML = `
     <div class="game-screen">
-      <p>Somewhere in Galway · Guess the fellow · Galway lore · Real or made up.
+      <p>Somewhere in Galway · Guess the country · Galway lore · Real or made up.
          Answer before the comet lands — speed and streaks both count, and every
          right answer sets a star in something we're drawing together.</p>
       <button class="btn" data-start>Start the round</button>
@@ -346,9 +327,15 @@ function renderStart() {
 
 async function runRound() {
   const quiz = await loadQuizData();
-  const questions = buildRound(state.fellows, quiz);
+  const questions = buildRound(allCountries(), quiz);
   const round = { score: 0, streak: 0, best: 0, correct: 0, i: 0, questions, comet: null };
   nextQuestion(round);
+}
+
+function paletteSwatchHTML(colors) {
+  return `<span class="clue-palette" aria-hidden="true">${colors
+    .map((c) => `<span class="clue-swatch" style="--sw:${c}"></span>`)
+    .join("")}</span>`;
 }
 
 function nextQuestion(round) {
@@ -356,7 +343,6 @@ function nextQuestion(round) {
   if (round.i >= round.questions.length) return renderEnd(round);
   const q = round.questions[round.i];
 
-  const isFind = q.type === "find";
   root.innerHTML = `
     <div class="game-screen">
       <div class="clad-progress" aria-hidden="true"></div>
@@ -366,10 +352,8 @@ function nextQuestion(round) {
         <span class="hud-score">${round.score}</span>
       </div>
       <div class="${reducedMotion() ? "comet-fallback" : "comet-strip"}"></div>
-      <p class="clue-text"><span class="clue-kind">${esc(q.kind)}</span>${!isFind && q.photo ? `<img class="clue-photo" src="${esc(q.photo)}" alt="">` : ""}${esc(q.clue)}</p>
-      ${isFind
-        ? `<div class="find-photo"><img src="${esc(q.photo)}" alt="Our group photo — find ${esc(q.target)}"></div>`
-        : `<div class="option-grid"></div>`}
+      <p class="clue-text"><span class="clue-kind">${esc(q.kind)}</span>${q.photo ? `<img class="clue-photo" src="${esc(q.photo)}" alt="">` : ""}${q.paletteSwatch ? paletteSwatchHTML(q.paletteSwatch) : ""}${esc(q.clue)}</p>
+      <div class="option-grid"></div>
       <p class="round-note" aria-live="polite"></p>
     </div>`;
 
@@ -381,30 +365,24 @@ function nextQuestion(round) {
     : new Comet(strip, SECONDS * 1000);
 
   const note = root.querySelector(".round-note");
+  const grid = root.querySelector(".option-grid");
   const started = performance.now();
   let settled = false;
-  let buttons = [];
 
   const timeout = setTimeout(() => settle(null), SECONDS * 1000);
-
-  const rightAnswerLabel = () => (isFind ? q.target : q.options[q.answerIdx]);
 
   function settle(chosenBtn) {
     if (settled) return;
     settled = true;
     clearTimeout(timeout);
+    const buttons = [...grid.querySelectorAll("button")];
     buttons.forEach((b) => (b.disabled = true));
-    const rightBtn = isFind
-      ? buttons.find((b) => b.dataset.name === q.target)
-      : buttons[q.answerIdx];
+    const rightBtn = buttons[q.answerIdx];
     const extra = q.note ? ` ${esc(q.note)}` : "";
-    const correct = chosenBtn && (isFind
-      ? chosenBtn.dataset.name === q.target
-      : chosenBtn === buttons[q.answerIdx]);
+    const correct = chosenBtn === buttons[q.answerIdx];
 
     if (correct) {
-      // fellow questions burst in that fellow's flag colours
-      round.comet.burst(q.flagCountry ? flagColors(q.flagCountry) : null);
+      round.comet.burst(q.palette || null);
       chime();
       const elapsed = (performance.now() - started) / 1000;
       const speed = Math.max(0, Math.round(BASE_POINTS * (1 - elapsed / SECONDS)));
@@ -427,40 +405,23 @@ function nextQuestion(round) {
         round.comet.fizzle();
         fizzleSound();
         chosenBtn.classList.add("wrong");
-        note.innerHTML = `${isFind ? `That's not ${esc(q.target)} — there they are.` : `It's ${esc(rightAnswerLabel())}.`}${extra}`;
+        note.innerHTML = `It's ${esc(q.options[q.answerIdx])}.${extra}`;
       } else {
         round.comet.land();
-        note.innerHTML = `The comet landed — ${isFind ? `${esc(q.target)} was right there.` : `it was ${esc(rightAnswerLabel())}.`}${extra}`;
+        note.innerHTML = `The comet landed — it was ${esc(q.options[q.answerIdx])}.${extra}`;
       }
       rightBtn?.classList.add("correct");
     }
     setTimeout(() => { round.i += 1; nextQuestion(round); }, 1600);
   }
 
-  if (isFind) {
-    const photoBox = root.querySelector(".find-photo");
-    for (const c of q.coords) {
-      const hit = document.createElement("button");
-      hit.className = "face-hit";
-      hit.dataset.name = c.name;
-      hit.style.left = `${c.x * 100}%`;
-      hit.style.top = `${c.y * 100}%`;
-      hit.setAttribute("aria-label", c.name);
-      hit.addEventListener("click", () => settle(hit));
-      photoBox.append(hit);
-    }
-    buttons = [...photoBox.querySelectorAll("button")];
-  } else {
-    const grid = root.querySelector(".option-grid");
-    q.options.forEach((text) => {
-      const btn = document.createElement("button");
-      btn.className = "option-btn";
-      btn.textContent = text;
-      btn.addEventListener("click", () => settle(btn));
-      grid.append(btn);
-    });
-    buttons = [...grid.querySelectorAll("button")];
-  }
+  q.options.forEach((text) => {
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = text;
+    btn.addEventListener("click", () => settle(btn));
+    grid.append(btn);
+  });
 }
 
 function renderEnd(round) {
@@ -515,6 +476,9 @@ function renderEnd(round) {
 }
 
 /* ================= leaderboards ================= */
+// leaderboard names are self-opted at the moment of playing — the
+// one place a name appears on the public site, distinct from the
+// no-names-elsewhere rule for the roster.
 
 export async function refreshLeaderboard(container, limit = 10) {
   const entries = await getLeaderboard(limit);
@@ -527,8 +491,6 @@ async function refreshLeaderboardSky(container) {
   renderLeaderboardSky(container, entries);
 }
 
-// the leaderboard as sky: brightest star at the top, the rest
-// scattered below, linked rank-to-rank by one faint line
 export function renderLeaderboardSky(container, entries) {
   container.innerHTML = "";
   if (!entries.length) {
