@@ -1,0 +1,59 @@
+{
+  "_readme": "Placeholder data for Constellation. Every name, funFact, and photoUrl below is a fictional placeholder — swap in real fellow details before launch. lat/lng are country capitals so same-country fellows cluster together; add small per-fellow jitter (±0.3) client-side if you want visible separation within a cluster rather than editing the data.",
+
+  "fellows": [
+    { "id": "fellow-01", "name": "Tendai Moyo", "country": "Zimbabwe", "lat": -17.8292, "lng": 31.0522, "course": "MSc Health Data Science", "university": "University of Galway", "photoUrl": "/assets/photos/placeholder-01.jpg", "funFact": "Has an opinion about every Stan warning message you've ever ignored." },
+    { "id": "fellow-02", "name": "Rutendo Chikafu", "country": "Zimbabwe", "lat": -17.8292, "lng": 31.0522, "course": "MSc International Development", "university": "NUI Galway", "photoUrl": "/assets/photos/placeholder-02.jpg", "funFact": "Makes the accommodation block's best sadza, no contest." },
+    { "id": "fellow-03", "name": "Farai Nyathi", "country": "Zimbabwe", "lat": -17.8292, "lng": 31.0522, "course": "LLM International Law", "university": "Trinity College Dublin", "photoUrl": "/assets/photos/placeholder-03.jpg", "funFact": "Once argued a parking ticket down to a warning, purely on technicalities." },
+
+    { "id": "fellow-04", "name": "Wanjiru Kamau", "country": "Kenya", "lat": -1.2921, "lng": 36.8219, "course": "MSc Public Health", "university": "University College Cork", "photoUrl": "/assets/photos/placeholder-04.jpg", "funFact": "Still undefeated at pool in the common room." },
+    { "id": "fellow-05", "name": "Otieno Odhiambo", "country": "Kenya", "lat": -1.2921, "lng": 36.8219, "course": "MSc Renewable Energy", "university": "University of Limerick", "photoUrl": "/assets/photos/placeholder-05.jpg", "funFact": "Can recite the Premier League table from memory, unprompted." },
+    { "id": "fellow-06", "name": "Achieng Auma", "country": "Kenya", "lat": -1.2921, "lng": 36.8219, "course": "MSc Epidemiology", "university": "University of Galway", "photoUrl": "/assets/photos/placeholder-06.jpg", "funFact": "Tried to learn Irish in a week. It did not go well." },
+
+    { "id": "fellow-07", "name": "Chisomo Banda", "country": "Malawi", "lat": -13.9626, "lng": 33.7741, "course": "MSc Food Security", "university": "University College Dublin", "photoUrl": "/assets/photos/placeholder-07.jpg", "funFact": "Grows chillies on the windowsill against all Galway weather odds." },
+    { "id": "fellow-08", "name": "Thandiwe Phiri", "country": "Malawi", "lat": -13.9626, "lng": 33.7741, "course": "MEd Education", "university": "Maynooth University", "photoUrl": "/assets/photos/placeholder-08.jpg", "funFact": "Has a playlist for every mood, including 'stats deadline panic.'" },
+
+    { "id": "fellow-09", "name": "Mwansa Mulenga", "country": "Zambia", "lat": -15.3875, "lng": 28.3228, "course": "MSc Agricultural Economics", "university": "University College Cork", "photoUrl": "/assets/photos/placeholder-09.jpg", "funFact": "Negotiates group dinner bills like it's a UN summit." },
+    { "id": "fellow-10", "name": "Bwalya Kabwe", "country": "Zambia", "lat": -15.3875, "lng": 28.3228, "course": "MSc Statistics", "university": "University of Galway", "photoUrl": "/assets/photos/placeholder-10.jpg", "funFact": "Owns exactly one raincoat and has never once needed a second." },
+
+    { "id": "fellow-11", "name": "Nakato Namuli", "country": "Uganda", "lat": 0.3476, "lng": 32.5825, "course": "MA Development Practice", "university": "Trinity College Dublin", "photoUrl": "/assets/photos/placeholder-11.jpg", "funFact": "Photographs every single sunset over the Corrib." },
+    { "id": "fellow-12", "name": "Ssenyonga Musoke", "country": "Uganda", "lat": 0.3476, "lng": 32.5825, "course": "MSc Data Analytics", "university": "Dublin City University", "photoUrl": "/assets/photos/placeholder-12.jpg", "funFact": "Debugged a classmate's R script over a phone call from the bus." },
+    { "id": "fellow-13", "name": "Nabirye Kobusingye", "country": "Uganda", "lat": 0.3476, "lng": 32.5825, "course": "MSc Environmental Engineering", "university": "University of Limerick", "photoUrl": "/assets/photos/placeholder-13.jpg", "funFact": "Has strong, specific opinions about the correct way to make chapati." },
+
+    { "id": "fellow-14", "name": "Amani Mushi", "country": "Tanzania", "lat": -6.1630, "lng": 35.7516, "course": "MSc Global Health", "university": "University of Galway", "photoUrl": "/assets/photos/placeholder-14.jpg", "funFact": "Can spot a typo in a slide deck from across the room." },
+    { "id": "fellow-15", "name": "Neema Kileo", "country": "Tanzania", "lat": -6.1630, "lng": 35.7516, "course": "MSc Biomedical Science", "university": "Royal College of Surgeons in Ireland", "photoUrl": "/assets/photos/placeholder-15.jpg", "funFact": "Runs every morning regardless of what the Galway sky is doing." },
+
+    { "id": "fellow-16", "name": "Selamawit Bekele", "country": "Ethiopia", "lat": 9.0300, "lng": 38.7400, "course": "MSc Water Resources Management", "university": "University College Dublin", "photoUrl": "/assets/photos/placeholder-16.jpg", "funFact": "Makes coffee properly, and has quietly judged everyone else's kettle instant." },
+    { "id": "fellow-17", "name": "Dawit Alemu", "country": "Ethiopia", "lat": 9.0300, "lng": 38.7400, "course": "MSc Climate Change", "university": "Maynooth University", "photoUrl": "/assets/photos/placeholder-17.jpg", "funFact": "Keeps a running spreadsheet of every hostel he's ever slept in." },
+    { "id": "fellow-18", "name": "Hiwot Tesfaye", "country": "Ethiopia", "lat": 9.0300, "lng": 38.7400, "course": "MA Human Rights", "university": "Trinity College Dublin", "photoUrl": "/assets/photos/placeholder-18.jpg", "funFact": "Has read every book on the cohort's shared shelf, twice." },
+
+    { "id": "fellow-19", "name": "Kwame Asante", "country": "Ghana", "lat": 5.6037, "lng": -0.1870, "course": "MBA", "university": "University College Cork", "photoUrl": "/assets/photos/placeholder-19.jpg", "funFact": "Has a five-year plan and a backup five-year plan." },
+    { "id": "fellow-20", "name": "Abena Owusu", "country": "Ghana", "lat": 5.6037, "lng": -0.1870, "course": "MSc Nursing", "university": "University of Galway", "photoUrl": "/assets/photos/placeholder-20.jpg", "funFact": "Adopted a stray cat outside the library and it now waits for her daily." },
+    { "id": "fellow-21", "name": "Kofi Mensah", "country": "Ghana", "lat": 5.6037, "lng": -0.1870, "course": "MSc Computer Science", "university": "Dublin City University", "photoUrl": "/assets/photos/placeholder-21.jpg", "funFact": "Will absolutely beat you at FIFA and will absolutely mention it after." },
+
+    { "id": "fellow-22", "name": "Mariama Kamara", "country": "Sierra Leone", "lat": 8.4657, "lng": -13.2317, "course": "MSc Social Work", "university": "University College Dublin", "photoUrl": "/assets/photos/placeholder-22.jpg", "funFact": "Organises every group trip down to the minute, unofficially." },
+    { "id": "fellow-23", "name": "Ibrahim Sesay", "country": "Sierra Leone", "lat": 8.4657, "lng": -13.2317, "course": "MSc Public Health", "university": "University of Galway", "photoUrl": "/assets/photos/placeholder-23.jpg", "funFact": "Never misses five-a-side, rain, sleet, or deadline." },
+
+    { "id": "fellow-24", "name": "Amelia Cossa", "country": "Mozambique", "lat": -25.9692, "lng": 32.5732, "course": "MSc International Development", "university": "University of Limerick", "photoUrl": "/assets/photos/placeholder-24.jpg", "funFact": "Speaks four languages and mixes up words from all of them by Friday." },
+    { "id": "fellow-25", "name": "Jose Machava", "country": "Mozambique", "lat": -25.9692, "lng": 32.5732, "course": "MSc Renewable Energy", "university": "University College Cork", "photoUrl": "/assets/photos/placeholder-25.jpg", "funFact": "Built a tiny solar charger in the kitchen 'just to see if it'd work.'" },
+
+    { "id": "fellow-26", "name": "Palesa Mokoena", "country": "Lesotho", "lat": -29.3142, "lng": 27.4833, "course": "MSc Food Security", "university": "University of Galway", "photoUrl": "/assets/photos/placeholder-26.jpg", "funFact": "Knits during every single seminar and somehow still takes better notes than anyone." },
+    { "id": "fellow-27", "name": "Thabo Ramaema", "country": "Lesotho", "lat": -29.3142, "lng": 27.4833, "course": "MA Human Rights", "university": "Trinity College Dublin", "photoUrl": "/assets/photos/placeholder-27.jpg", "funFact": "Has a laugh you can hear from two rooms away." },
+
+    { "id": "fellow-28", "name": "Linh Nguyen", "country": "Vietnam", "lat": 21.0278, "lng": 105.8342, "course": "MSc Data Analytics", "university": "University of Galway", "photoUrl": "/assets/photos/placeholder-28.jpg", "funFact": "Brought her own rice cooker across three flights, no regrets." },
+    { "id": "fellow-29", "name": "Minh Tran", "country": "Vietnam", "lat": 21.0278, "lng": 105.8342, "course": "MSc Climate Change", "university": "Maynooth University", "photoUrl": "/assets/photos/placeholder-29.jpg", "funFact": "Has cycled every greenway within an hour of Galway." },
+
+    { "id": "fellow-30", "name": "Sopheak Chan", "country": "Cambodia", "lat": 11.5564, "lng": 104.9282, "course": "MSc Water Resources Management", "university": "University College Dublin", "photoUrl": "/assets/photos/placeholder-30.jpg", "funFact": "Draws a small comic strip of each seminar and shares it in the group chat." },
+    { "id": "fellow-31", "name": "Bopha Sok", "country": "Cambodia", "lat": 11.5564, "lng": 104.9282, "course": "MSc Statistics", "university": "University of Galway", "photoUrl": "/assets/photos/placeholder-31.jpg", "funFact": "Once explained a p-value using a bag of Tayto. It worked." },
+
+    { "id": "fellow-32", "name": "Rania Awad", "country": "Palestine", "lat": 31.9038, "lng": 35.2034, "course": "MSc Global Health", "university": "Trinity College Dublin", "photoUrl": "/assets/photos/placeholder-32.jpg", "funFact": "Bakes knafeh for the whole floor whenever someone's having a rough week." },
+    { "id": "fellow-33", "name": "Yousef Hammad", "country": "Palestine", "lat": 31.9038, "lng": 35.2034, "course": "LLM International Law", "university": "University College Cork", "photoUrl": "/assets/photos/placeholder-33.jpg", "funFact": "Can find a loophole in absolutely anything, including the seminar attendance policy." },
+
+    { "id": "fellow-34", "name": "Somchai Vong", "country": "Laos", "lat": 17.9757, "lng": 102.6331, "course": "MSc Agricultural Economics", "university": "University of Limerick", "photoUrl": "/assets/photos/placeholder-34.jpg", "funFact": "Keeps a small notebook of every Irish idiom that's confused him so far." },
+    { "id": "fellow-35", "name": "Kham Southavong", "country": "Laos", "lat": 17.9757, "lng": 102.6331, "course": "MSc Computer Science", "university": "Dublin City University", "photoUrl": "/assets/photos/placeholder-35.jpg", "funFact": "Built a Discord bot to remind the group chat of assignment deadlines." }
+  ],
+
+  "leaderboard": [],
+
+  "skills_zone": []
+}

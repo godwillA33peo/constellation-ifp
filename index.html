@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Constellation — Ireland Fellows, Galway</title>
+  <meta name="description" content="A night sky for our cohort. Every fellow a star; every home country a point of origin; one night when the whole constellation is visible at once.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l3.2 10.8L30 16l-10.8 3.2L16 30l-3.2-10.8L2 16l10.8-3.2z' fill='%23F2C879'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,560;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <p id="demo-banner" hidden>
+    We're running in demo mode — scores and skills save on this device only.
+    Add your Supabase keys in <code>js/config.js</code> to make them shared.
+  </p>
+
+  <header class="site-header">
+    <a class="wordmark" href="#arrivals"><span class="wordmark-star" aria-hidden="true">✦</span>Constellation</a>
+    <nav class="site-nav" aria-label="Sections">
+      <a href="#arrivals" data-nav="arrivals"><span class="nav-star" aria-hidden="true">✦</span><span>Arrivals</span></a>
+      <a href="#gallery" data-nav="gallery"><span class="nav-star" aria-hidden="true">✦</span><span>Sky&nbsp;Gallery</span></a>
+      <a href="#game" data-nav="game"><span class="nav-star" aria-hidden="true">✦</span><span>Star&nbsp;Chart</span></a>
+      <a href="#trade" data-nav="trade"><span class="nav-star" aria-hidden="true">✦</span><span>Trade&nbsp;Zone</span></a>
+    </nav>
+  </header>
+
+  <main id="app">
+
+    <section id="arrivals" class="section" aria-labelledby="arrivals-title" hidden>
+      <div class="section-intro">
+        <h1 id="arrivals-title">The sky we made together</h1>
+        <p>We came to Galway from every direction — each of us a star, each home country a point of origin.
+           Tap a cluster to meet the fellows whose light started there.</p>
+      </div>
+      <div id="arrivals-map" class="map-wrap" role="img" aria-label="World map showing where each fellow's journey began, drawn as star clusters"></div>
+      <aside id="cluster-panel" class="cluster-panel" hidden></aside>
+    </section>
+
+    <section id="gallery" class="section" aria-labelledby="gallery-title" hidden>
+      <div class="section-intro">
+        <h1 id="gallery-title">Sky Gallery</h1>
+        <p>The same sky, zoomed in. Drift around and find each other — every photo is a star,
+           still tied by a thin line to home.</p>
+      </div>
+      <div id="gallery-sky" class="gallery-sky" tabindex="0" aria-label="Pannable sky of fellow photos. Scroll in any direction."></div>
+    </section>
+
+    <section id="game" class="section" aria-labelledby="game-title" hidden>
+      <div class="section-intro">
+        <h1 id="game-title">Star Chart</h1>
+        <p>How well do we actually know each other? Ten clues, one falling star each.
+           Answer before it lands — streaks and speed both count.</p>
+      </div>
+      <div id="game-root" class="game-root"></div>
+    </section>
+
+    <section id="trade" class="section" aria-labelledby="trade-title" hidden>
+      <div class="section-intro">
+        <h1 id="trade-title">Trade Zone</h1>
+        <p>The part of the sky that stays lit after the party. Log what you can offer the rest of us,
+           and what you're looking for — wherever we all land next.</p>
+      </div>
+      <div id="trade-root" class="trade-root"></div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Made by us, for us — Ireland Fellows, University of Galway. <span aria-hidden="true">✦</span></p>
+  </footer>
+
+  <div id="modal-root"></div>
+  <div id="display-root"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
