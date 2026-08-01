@@ -48,8 +48,10 @@ export async function initArrivals() {
   galwayLabel.textContent = "Galway";
   zoomG.append(galwayStar, galwayLabel);
 
+  // ignition sweeps the world west → east: the Americas wake first,
+  // then Africa and the Middle East, then Asia
   const clusters = [...groupByCountry(state.fellows).entries()]
-    .sort((a, b) => dist(project(a[1][0].lat, a[1][0].lng), GALWAY) - dist(project(b[1][0].lat, b[1][0].lng), GALWAY));
+    .sort((a, b) => a[1][0].lng - b[1][0].lng);
 
   const clusterEls = [];
 
@@ -196,8 +198,4 @@ function buildFellowNodes(country, fellows, anchor, rng) {
     wrap.append(node);
   });
   return wrap;
-}
-
-function dist(a, b) {
-  return Math.hypot(a[0] - b[0], a[1] - b[1]);
 }

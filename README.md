@@ -11,6 +11,14 @@ leaderboard) · Trade Zone (the skills network that outlives the party).
 ## How it's built
 
 - **Frontend** — plain HTML/CSS/JS (no build step), hosted on GitHub Pages.
+- **The sky** — a Three.js WebGL starfield with a scroll-driven camera
+  (nightfall gradient, Milky Way, shooting stars), with GSAP + ScrollTrigger
+  for kinetic type and Lenis for inertia scrolling — all loaded from CDNs at
+  runtime. Three experience tiers detected at load: full journey (desktop),
+  simplified WebGL (mobile), and a static 2D-canvas sky (reduced motion,
+  no WebGL, or low-end devices) with identical content and functionality.
+  All content lives in the DOM in logical order — the 3D scene is
+  presentation, never the only path to anything.
 - **Data** — Supabase free tier: `fellows`, `leaderboard`, `skills_zone`
   tables, with realtime updates on the leaderboard for the projector view.
 - **Demo mode** — until Supabase keys are added to `js/config.js`, the site

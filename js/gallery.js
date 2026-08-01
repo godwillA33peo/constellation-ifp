@@ -6,6 +6,7 @@
 import { state } from "./store.js";
 import { el, handLine, drawIn, mulberry32, hashString, photoOrInitials, reducedMotion } from "./sky.js";
 import { groupByCountry } from "./arrivals.js";
+import { bloomTone } from "./soundscape.js";
 import { esc } from "./ui.js";
 
 export const SKY_W = 1900;
@@ -272,6 +273,7 @@ export function initGallery() {
     }
     btn.classList.add("bloom");
     stage.classList.add("dimmed");
+    bloomTone();
   }
   stage.addEventListener("click", (e) => {
     if (suppressClick || e.target.closest(".photo-star") || e.target.closest(".gallery-controls")) return;

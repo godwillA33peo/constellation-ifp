@@ -5,7 +5,8 @@
 // the whole sky (via skyfield).
 import { state, getLeaderboard, submitScore, onLeaderboardChange } from "./store.js";
 import { el, handLine, drawIn, mulberry32, hashString, reducedMotion } from "./sky.js";
-import { setSkyBoost } from "./skyfield.js";
+import { setSkyBoost } from "./atmosphere.js";
+import { chime } from "./soundscape.js";
 import { esc } from "./ui.js";
 
 const QUESTIONS = 10;
@@ -358,6 +359,7 @@ function nextQuestion(round) {
 
     if (chosenIdx === q.answerIdx) {
       round.comet.burst();
+      chime();
       const elapsed = (performance.now() - started) / 1000;
       const speed = Math.max(0, Math.round(BASE_POINTS * (1 - elapsed / SECONDS)));
       round.streak += 1;
