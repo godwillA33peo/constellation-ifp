@@ -81,7 +81,111 @@ export function initClosing() {
     played = true;
     io.disconnect();
     mount.classList.add("constellation-on");
-    if (!reducedMotion()) drawIn(paths, { duration: 1200, stagger: 26 });
+    if (!reducedMotion()) {
+      drawIn(paths, { duration: 1200, stagger: 26 });
+      setTimeout(() => beginPhotoReveal(mount), 2600);
+    } else {
+      beginPhotoReveal(mount, true);
+    }
   }, { threshold: 0.3 });
   io.observe(mount);
+}
+
+/* ------------------------------------------------------------
+   The payoff: the stars turn out to be people. The constellation
+   drifts, multiplies into thousands of particles, and assembles
+   into the group photo — pixels as points of light converging
+   until the image resolves. Stars first, faces last.
+   ------------------------------------------------------------ */
+
+const GROUP_PHOTO = "assets/group-photo.jpg";
+
+function beginPhotoReveal(mount, instant = false) {
+  const holder = document.createElement("div");
+  holder.className = "photo-reveal";
+  const img = document.createElement("img");
+  img.className = "reveal-photo";
+  img.alt = "Our whole cohort, together";
+  img.src = GROUP_PHOTO;
+  const canvas = document.createElement("canvas");
+  canvas.className = "reveal-canvas";
+  canvas.setAttribute("aria-hidden", "true");
+  holder.append(img, canvas);
+  mount.after(holder);
+
+  if (instant) {
+    holder.classList.add("resolved");
+    return;
+  }
+
+  img.decode?.().catch(() => {}).finally(() => {
+    img.addEventListener("error", () => holder.classList.add("resolved"), { once: true });
+    if (!img.naturalWidth) {
+      // photo missing → just fade the frame in gracefully
+      holder.classList.add("resolved");
+      return;
+    }
+    runParticleAssembly(holder, img, canvas);
+  });
+}
+
+function runParticleAssembly(holder, img, canvas) {
+  const small = window.innerWidth < 700;
+  const rect = holder.getBoundingClientRect();
+  const W = (canvas.width = Math.max(1, Math.round(rect.width)));
+  const H = (canvas.height = Math.max(1, Math.round(rect.height)));
+  const ctx = canvas.getContext("2d");
+
+  // sample the photo into a coarse grid of coloured points
+  const cols = small ? 72 : 116;
+  const rows = Math.round(cols * (H / W));
+  const off = document.createElement("canvas");
+  off.width = cols; off.height = rows;
+  const og = off.getContext("2d");
+  og.drawImage(img, 0, 0, cols, rows);
+  const data = og.getImageData(0, 0, cols, rows).data;
+
+  const rng = mulberry32(1926);
+  const parts = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const i = (r * cols + c) * 4;
+      const lum = (data[i] + data[i + 1] + data[i + 2]) / 765;
+      if (lum < 0.06 && rng() < 0.55) continue; // skip some near-black pixels
+      parts.push({
+        tx: ((c + 0.5) / cols) * W,
+        ty: ((r + 0.5) / rows) * H,
+        x: W / 2 + (rng() - 0.5) * W * 1.7,
+        y: H / 2 + (rng() - 0.5) * H * 1.7,
+        col: `rgb(${data[i]},${data[i + 1]},${data[i + 2]})`,
+        delay: rng() * 900,
+      });
+    }
+  }
+
+  const t0 = performance.now();
+  const DURATION = 2600;
+  function frame(now) {
+    const t = now - t0;
+    ctx.clearRect(0, 0, W, H);
+    let done = true;
+    for (const p of parts) {
+      const k = Math.min(1, Math.max(0, (t - p.delay) / DURATION));
+      if (k < 1) done = false;
+      const e = 1 - Math.pow(1 - k, 3);
+      const x = p.x + (p.tx - p.x) * e;
+      const y = p.y + (p.ty - p.y) * e;
+      ctx.globalAlpha = 0.25 + 0.75 * e;
+      ctx.fillStyle = p.col;
+      ctx.fillRect(x, y, 2, 2);
+    }
+    ctx.globalAlpha = 1;
+    if (!done) {
+      requestAnimationFrame(frame);
+    } else {
+      holder.classList.add("resolved"); // the real photo fades up, particles fade out
+      setTimeout(() => canvas.remove(), 1400);
+    }
+  }
+  requestAnimationFrame(frame);
 }

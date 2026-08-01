@@ -7,6 +7,7 @@
 // the scroll experience. ?display=true still routes straight to the
 // projector view, skipping the cinematic arrival.
 import { initStore, state } from "./store.js";
+import { WORDMARK } from "./config.js";
 import { detectTier } from "./tiers.js";
 import { initAtmosphere } from "./atmosphere.js";
 import { runPreloader } from "./preloader.js";
@@ -15,14 +16,15 @@ import { initKinetic, playHero } from "./kinetic.js";
 import { initCursor } from "./cursor.js";
 import { initSound } from "./soundscape.js";
 import { fetchLandPath } from "./worldmap.js";
+import { loadFlags } from "./flags.js";
 import { initArrivals } from "./arrivals.js";
 import { initGallery } from "./gallery.js";
 import { initGame } from "./game.js";
-import { initTrade } from "./trade.js";
+import { initMenu } from "./menu.js";
 import { initClosing } from "./closing.js";
 import { initDisplay } from "./display.js";
 
-const SECTIONS = ["arrivals", "gallery", "game", "trade"];
+const SECTIONS = ["arrivals", "gallery", "game", "menu"];
 
 function makeTracker() {
   let total = 0, settled = 0;
@@ -42,10 +44,15 @@ async function boot() {
   const tier = detectTier();
   document.body.dataset.tier = tier;
 
+  // one-line rebrand: config → header + title
+  document.querySelectorAll(".wordmark-text").forEach((n) => { n.textContent = WORDMARK; });
+  document.title = WORDMARK;
+
   // projector mode: no preloader, no smooth-scroll layer
   if (params.get("display") === "true") {
     document.getElementById("preloader")?.remove();
     try { await initStore(); } catch (e) { console.error(e); return; }
+    await loadFlags();
     await initAtmosphere(tier);
     await initDisplay(params);
     return;
@@ -54,8 +61,9 @@ async function boot() {
   // load everything behind the arrival sequence
   const tracker = makeTracker();
   const pStore = tracker.track(initStore());
+  const pFlags = tracker.track(loadFlags());
   tracker.track(fetchLandPath());
-  tracker.track(document.fonts ? document.fonts.load("560 90px Fraunces") : Promise.resolve());
+  tracker.track(document.fonts ? document.fonts.load("400 90px Fraunces") : Promise.resolve());
   tracker.track(fetch("data/questions.json"));
   tracker.track(initAtmosphere(tier));
   const pLibs = tier < 3 ? initScrollLibs(tier) : Promise.resolve({ gsap: null, lenis: null });
@@ -75,11 +83,12 @@ async function boot() {
   }
 
   document.getElementById("demo-banner").hidden = state.live;
+  await pFlags; // star tints and flag mosaics need the colour data
 
   await initArrivals();
   initGallery();
   initGame();
-  initTrade();
+  initMenu();
   initClosing();
   scrollSpy();
 

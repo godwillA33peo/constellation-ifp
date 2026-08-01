@@ -3,36 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Constellation — Ireland Fellows, Galway</title>
-  <meta name="description" content="A night sky for our cohort. Every fellow a star; every home country a point of origin; one night when the whole constellation is visible at once.">
+  <title>Ireland Fellows — Galway '26</title>
+  <meta name="description" content="A night sky for our cohort. 35 fellows, 22 countries, one Galway — every fellow a star, every home country a point of origin.">
+  <meta property="og:title" content="Ireland Fellows — Galway '26">
+  <meta property="og:description" content="35 fellows · 22 countries · one sky. Play the Star Chart, find yourself in the gallery, bring your country to the table.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://godwilla33peo.github.io/constellation-ifp/">
+  <meta property="og:image" content="https://godwilla33peo.github.io/constellation-ifp/assets/share-card.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://godwilla33peo.github.io/constellation-ifp/assets/share-card.jpg">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2l3.2 10.8L30 16l-10.8 3.2L16 30l-3.2-10.8L2 16l10.8-3.2z' fill='%23E6C87A'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,560;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <noscript><style>#preloader { display: none; }</style></noscript>
 </head>
 <body>
 
   <!-- the arrival: stars assemble the wordmark while assets load -->
-  <div id="preloader" aria-label="Loading Constellation">
+  <div id="preloader" aria-label="Loading">
     <canvas aria-hidden="true"></canvas>
     <div class="pre-count" aria-live="polite">0</div>
     <p class="pre-hint">tap anywhere to skip</p>
   </div>
 
   <p id="demo-banner" hidden>
-    We're running in demo mode — scores and skills save on this device only.
+    We're running in demo mode — scores and menu items save on this device only.
     Add your Supabase keys in <code>js/config.js</code> to make them shared.
   </p>
 
   <header class="site-header">
-    <a class="wordmark" href="#hero"><span class="wordmark-star" aria-hidden="true">✦</span>Constellation</a>
+    <a class="wordmark" href="#hero"><span class="wordmark-star" aria-hidden="true">✦</span><span class="wordmark-text">Ireland Fellows — Galway '26</span></a>
     <nav class="site-nav" aria-label="Sections">
       <a href="#arrivals" data-nav="arrivals"><span class="nav-star" aria-hidden="true">✦</span><span>Arrivals</span></a>
       <a href="#gallery" data-nav="gallery"><span class="nav-star" aria-hidden="true">✦</span><span>Sky&nbsp;Gallery</span></a>
       <a href="#game" data-nav="game"><span class="nav-star" aria-hidden="true">✦</span><span>Star&nbsp;Chart</span></a>
-      <a href="#trade" data-nav="trade"><span class="nav-star" aria-hidden="true">✦</span><span>Trade&nbsp;Zone</span></a>
+      <a href="#menu" data-nav="menu"><span class="nav-star" aria-hidden="true">✦</span><span>The&nbsp;Menu</span></a>
     </nav>
   </header>
 
@@ -45,18 +52,18 @@
     </section>
 
     <div class="ribbon" aria-hidden="true"><div class="ribbon-track">
-      <span>Galway · 2025–26</span><span>✦</span><span>Twenty-one countries</span><span>✦</span><span>One sky</span><span>✦</span>
-      <span>Galway · 2025–26</span><span>✦</span><span>Twenty-one countries</span><span>✦</span><span>One sky</span><span>✦</span>
+      <span>Galway · 2025–26</span><span>✦</span><span>Twenty-two countries</span><span>✦</span><span>One sky</span><span>✦</span>
+      <span>Galway · 2025–26</span><span>✦</span><span>Twenty-two countries</span><span>✦</span><span>One sky</span><span>✦</span>
     </div></div>
 
     <section id="arrivals" class="section" aria-labelledby="arrivals-title">
       <div class="section-intro">
         <h1 id="arrivals-title" data-kinetic>Arrivals</h1>
-        <p>Twenty-one countries, one destination. Each of us a star, each home country
-           a point of origin, every line leading to Galway. Tap a cluster to move closer.</p>
+        <p>Twenty-two countries, one destination. Watch the community grow, one of us
+           at a time — then tap any country to meet its fellows.</p>
       </div>
       <div id="arrivals-map" class="map-wrap" role="img"
-           aria-label="World map showing where each fellow's journey began, drawn as star clusters converging on Galway"></div>
+           aria-label="World map: each fellow's flag turns to stardust and flies from their home country to Galway, where the huddle of arrivals grows to 35"></div>
     </section>
 
     <div class="ribbon" aria-hidden="true"><div class="ribbon-track">
@@ -67,10 +74,11 @@
     <section id="gallery" class="section" aria-labelledby="gallery-title">
       <div class="section-intro">
         <h1 id="gallery-title" data-kinetic>Sky Gallery</h1>
-        <p>The same sky, closer. Drag to drift, pinch to lean in, tap a star and it blooms.</p>
+        <p>The same sky, closer. Drift between the stars, find the moon we all share,
+           tap a star and it blooms.</p>
       </div>
       <div id="gallery-sky" class="gallery-stage" tabindex="0"
-           aria-label="Pannable sky of fellow photos. Drag to pan, pinch or use the buttons to zoom, tap a photo to see who it is."></div>
+           aria-label="Pannable sky of fellow photos around the group-photo moon. Drag to pan, pinch or use the buttons to zoom, tap a photo to see who it is."></div>
     </section>
 
     <div class="ribbon" aria-hidden="true"><div class="ribbon-track">
@@ -88,23 +96,24 @@
     </section>
 
     <div class="ribbon" aria-hidden="true"><div class="ribbon-track">
-      <span>The part of the sky</span><span>✦</span><span>that stays lit</span><span>✦</span>
-      <span>The part of the sky</span><span>✦</span><span>that stays lit</span><span>✦</span>
+      <span>Bring your country</span><span>✦</span><span>to the table</span><span>✦</span>
+      <span>Bring your country</span><span>✦</span><span>to the table</span><span>✦</span>
     </div></div>
 
-    <section id="trade" class="section" aria-labelledby="trade-title">
+    <section id="menu" class="section" aria-labelledby="menu-title">
       <div class="section-intro">
-        <h1 id="trade-title" data-kinetic>Trade Zone</h1>
-        <p>The corner of the sky that stays lit after the party. Log what you can offer the
-           rest of us, and what you're looking for — wherever we all land next.</p>
+        <h1 id="menu-title" data-kinetic>The Menu</h1>
+        <p>Bring your country to the table. Add a dish or a drink from home — or any
+           party wish — and watch the feast grow under the stars. Every plate lights
+           a lantern in Galway.</p>
       </div>
-      <div id="trade-root" class="trade-root"></div>
+      <div id="menu-root" class="trade-root"></div>
     </section>
 
     <section id="closing" class="section section-last closing" aria-label="Closing">
       <div id="closing-constellation" class="closing-constellation"></div>
-      <!-- TODO: final line is placeholder copy — Godwill to supply the real one -->
-      <p class="closing-line" data-kinetic>One sky. Wherever we rise next, we rose here together.</p>
+      <!-- TODO: final line is working copy — Godwill may replace -->
+      <p class="closing-line" data-kinetic>The sky, from the ground.</p>
       <p class="site-footer-line">Made by us, for us — Ireland Fellows, University of Galway. <span aria-hidden="true">✦</span></p>
     </section>
 

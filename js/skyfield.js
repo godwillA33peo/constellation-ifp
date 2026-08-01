@@ -63,6 +63,15 @@ export function setSkyBoost(n) {
   if (staticMode) paint(0);
 }
 
+// event pulse — a brief warm brightening (kept subtle in 2D)
+let flash2d = 0;
+export function pulseSky() {
+  flash2d = 1;
+  if (!staticMode) return;
+  paint(0);
+  setTimeout(() => { flash2d = 0; paint(0); }, 450);
+}
+
 function resize() {
   small = window.innerWidth < 700;
   DPR = Math.min(window.devicePixelRatio || 1, small ? 1.5 : 1.75);
@@ -184,9 +193,10 @@ function paint(now) {
     ctx.globalAlpha = 1;
   }
 
-  // streak boost eases in and out
+  // streak boost eases in and out; event flashes decay
   boostShown += (boost - boostShown) * 0.06;
-  const lift = 1 + boostShown * 0.05;
+  flash2d *= 0.93;
+  const lift = 1 + boostShown * 0.05 + flash2d * 0.2;
 
   ctx.fillStyle = "#F5F3EE";
   const time = now / 1000;

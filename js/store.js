@@ -4,7 +4,8 @@
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "./config.js";
 
 const LS_SCORES = "constellation_leaderboard";
-const LS_SKILLS = "constellation_skills";
+const LS_MENU = "constellation_menu";
+const LS_VOTED = "constellation_menu_voted";
 
 export const state = {
   fellows: [],
@@ -54,7 +55,7 @@ export async function initStore() {
       supabase = null;
     }
   }
-  const res = await fetch("data/fellows-seed-data.json");
+  const res = await fetch("data/fellows.json");
   const seed = await res.json();
   state.fellows = seed.fellows.map(fromRow);
   state.live = false;
@@ -112,36 +113,57 @@ function subscribeLeaderboard() {
     .subscribe();
 }
 
-// -- skills / Trade Zone ---------------------------------------
+// -- The Menu ("bring your country to the table") ---------------
 
-export async function getSkills() {
+export async function getMenu() {
   if (supabase) {
-    const { data, error } = await supabase
-      .from("skills_zone")
-      .select("id, name, offering, seeking")
-      .order("created_at", { ascending: false });
+    const [{ data: items, error }, { data: votes }] = await Promise.all([
+      supabase.from("menu").select("id, name, item, kind, country, note, created_at")
+        .order("created_at", { ascending: false }),
+      supabase.from("menu_votes").select("item_id"),
+    ]);
     if (error) { console.warn(error); return []; }
-    return data.map((r) => ({
-      id: r.id,
-      name: r.name,
-      offering: Array.isArray(r.offering) ? r.offering : [],
-      seeking: r.seeking || "",
-    }));
+    const counts = {};
+    (votes || []).forEach((v) => { counts[v.item_id] = (counts[v.item_id] || 0) + 1; });
+    return items.map((r) => ({ ...r, votes: counts[r.id] || 0 }));
   }
-  return readLS(LS_SKILLS);
+  return readLS(LS_MENU);
 }
 
-export async function addSkill({ name, offering, seeking }) {
+export async function addMenuItem({ name, item, kind, country, note }) {
   name = name.trim().slice(0, 60);
-  offering = offering.map((s) => s.trim()).filter(Boolean).slice(0, 2);
-  seeking = seeking.trim().slice(0, 80);
-  if (!name || offering.length === 0) throw new Error("A name and at least one offered skill, please.");
+  item = item.trim().slice(0, 80);
+  note = (note || "").trim().slice(0, 120);
+  kind = kind === "drink" ? "drink" : "food";
+  if (!name || !item) throw new Error("A name and a dish (or drink), please.");
   if (supabase) {
-    const { error } = await supabase.from("skills_zone").insert({ name, offering, seeking });
+    const { error } = await supabase.from("menu").insert({ name, item, kind, country, note });
     if (error) throw error;
   } else {
-    const rows = readLS(LS_SKILLS);
-    rows.unshift({ id: `local-${Date.now()}`, name, offering, seeking });
-    writeLS(LS_SKILLS, rows);
+    const rows = readLS(LS_MENU);
+    rows.unshift({
+      id: `local-${Date.now()}`, name, item, kind, country, note,
+      votes: 0, created_at: new Date().toISOString(),
+    });
+    writeLS(LS_MENU, rows);
   }
+}
+
+// one upvote per item per device
+export function hasVoted(itemId) {
+  return readLS(LS_VOTED).includes(itemId);
+}
+
+export async function upvoteMenuItem(itemId) {
+  if (hasVoted(itemId)) return false;
+  if (supabase) {
+    const { error } = await supabase.from("menu_votes").insert({ item_id: itemId });
+    if (error) throw error;
+  } else {
+    const rows = readLS(LS_MENU);
+    const row = rows.find((r) => r.id === itemId);
+    if (row) { row.votes = (row.votes || 0) + 1; writeLS(LS_MENU, rows); }
+  }
+  writeLS(LS_VOTED, [...readLS(LS_VOTED), itemId]);
+  return true;
 }

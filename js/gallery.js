@@ -7,7 +7,10 @@ import { state } from "./store.js";
 import { el, handLine, drawIn, mulberry32, hashString, photoOrInitials, reducedMotion } from "./sky.js";
 import { groupByCountry } from "./arrivals.js";
 import { bloomTone } from "./soundscape.js";
+import { flagTint, flagImgUrl } from "./flags.js";
 import { esc, openFellowCard } from "./ui.js";
+
+const GROUP_PHOTO = "assets/group-photo.jpg";
 
 export const SKY_W = 1900;
 export const SKY_H = 1240;
@@ -73,6 +76,29 @@ export function initGallery() {
   const allPaths = [];
   const photoStars = [];
 
+  // ---- the moon: the cohort group photo, the largest body in this
+  // sky and the landmark the stars loosely orbit ----
+  const moon = document.createElement("button");
+  moon.className = "moon";
+  moon.style.left = `${SKY_W / 2}px`;
+  moon.style.top = `${SKY_H / 2}px`;
+  moon.setAttribute("aria-label", "The whole cohort — tap to see the group photo full screen");
+  const moonImg = document.createElement("img");
+  moonImg.src = GROUP_PHOTO;
+  moonImg.alt = "Our cohort, together";
+  moonImg.loading = "lazy";
+  moon.append(moonImg);
+  const moonTag = document.createElement("span");
+  moonTag.className = "photo-name";
+  moonTag.textContent = "all of us";
+  moon.append(moonTag);
+  moon.addEventListener("click", (e) => {
+    if (suppressClick) return;
+    e.stopPropagation();
+    openMoonOverlay();
+  });
+  canvas.append(moon);
+
   for (const cluster of layoutSky(state.fellows)) {
     for (const s of cluster.stars) {
       if (s.x === cluster.cx && s.y === cluster.cy) continue;
@@ -97,6 +123,17 @@ export function initGallery() {
       btn.setAttribute("aria-label",
         `${s.fellow.name} — ${s.fellow.course}, from ${s.fellow.country}. Tap once to bloom, again for their story.`);
 
+      // each star faintly tinted toward its flag's dominant colour —
+      // the sky is secretly a map of nations
+      btn.style.setProperty("--flag-tint", flagTint(s.fellow.country));
+
+      // behind a bloomed portrait, the flag ripples as slow silk
+      const silk = document.createElement("img");
+      silk.className = "silk-flag";
+      silk.alt = "";
+      silk.loading = "lazy";
+      silk.src = flagImgUrl(s.fellow.country, 320);
+
       const inner = document.createElement("span");
       inner.className = "ps-inner";
       const rng = mulberry32(hashString(s.fellow.id));
@@ -117,7 +154,7 @@ export function initGallery() {
         <span class="bi-meta">from ${esc(s.fellow.country)}</span>
         <span class="bi-more">tap again — full story ✦</span>`;
 
-      btn.append(inner, nameTag, info);
+      btn.append(silk, inner, nameTag, info);
       btn.addEventListener("click", (e) => {
         if (suppressClick) return;
         e.stopPropagation();
@@ -140,6 +177,41 @@ export function initGallery() {
     <button type="button" data-zoom="out" aria-label="Zoom out">−</button>
     <button type="button" data-zoom="reset" aria-label="Reset view">✦</button>`;
   stage.append(controls);
+
+  // touch: page scroll wins by default; the explore toggle hands the
+  // canvas over to drag-pan (§5.3 — vertical scroll must still work)
+  let exploring = false;
+  stage.style.touchAction = "pan-y";
+  const exploreBtn = document.createElement("button");
+  exploreBtn.className = "explore-toggle";
+  exploreBtn.type = "button";
+  exploreBtn.setAttribute("aria-pressed", "false");
+  exploreBtn.textContent = "✦ explore the sky";
+  exploreBtn.addEventListener("click", () => {
+    exploring = !exploring;
+    exploreBtn.setAttribute("aria-pressed", String(exploring));
+    exploreBtn.textContent = exploring ? "✕ done exploring" : "✦ explore the sky";
+    exploreBtn.classList.toggle("on", exploring);
+    stage.style.touchAction = exploring ? "none" : "pan-y";
+  });
+  stage.append(exploreBtn);
+
+  function openMoonOverlay() {
+    const scrim = document.createElement("div");
+    scrim.className = "modal-scrim moon-scrim";
+    scrim.innerHTML = `
+      <figure class="moon-full">
+        <button class="modal-close" aria-label="Close">✕</button>
+        <img src="${GROUP_PHOTO}" alt="Our whole cohort together">
+        <figcaption>All of us, one night.</figcaption>
+      </figure>`;
+    const close = () => { scrim.remove(); document.removeEventListener("keydown", onKey); };
+    const onKey = (e) => { if (e.key === "Escape") close(); };
+    scrim.addEventListener("click", (e) => { if (e.target === scrim || e.target.closest(".modal-close")) close(); });
+    document.addEventListener("keydown", onKey);
+    document.getElementById("modal-root").append(scrim);
+    bloomTone();
+  }
 
   // -- camera state --
   const view = { x: 0, y: 0, s: 1 };
@@ -195,7 +267,9 @@ export function initGallery() {
   let lastMid = null, lastDist = 0, moved = 0, suppressClick = false;
 
   stage.addEventListener("pointerdown", (e) => {
-    if (e.target.closest(".gallery-controls")) return;
+    if (e.target.closest(".gallery-controls") || e.target.closest(".explore-toggle")) return;
+    // touch pans only in explore mode; the page keeps its scroll
+    if (e.pointerType !== "mouse" && !exploring) return;
     stage.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     moved = 0;

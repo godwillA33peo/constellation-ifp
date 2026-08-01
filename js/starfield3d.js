@@ -24,7 +24,8 @@ let DEPTH = 4200;
 let progress = 0;       // 0 top of page → 1 bottom
 let boost = 0;
 let boostShown = 0;
-let mouse = { x: 0, y: 0 };
+let flash = 0;          // event pulse (arrivals landing etc.)
+let auroras = [];
 let rafId = null;
 let clockStart = 0;
 
@@ -55,14 +56,13 @@ export async function init(t) {
   buildStars();
   buildDuskGlow();
   buildMilkyWay();
+  buildAurora();
 
+  // hard rule: the background never reacts to the cursor —
+  // no pointer listeners here, and the canvas ignores events
+  renderer.domElement.style.pointerEvents = "none";
   window.addEventListener("resize", onResize, { passive: true });
   window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("pointermove", (e) => {
-    if (e.pointerType !== "mouse") return;
-    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = (e.clientY / window.innerHeight) * 2 - 1;
-  }, { passive: true });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stop(); else start();
   });
@@ -75,6 +75,11 @@ export async function init(t) {
 
 export function setBoost(n) {
   boost = Math.min(10, Math.max(0, n));
+}
+
+// a brief warm brightening (arrival landings, celebrations)
+export function pulse(strength = 1) {
+  flash = Math.min(1.6, flash + 0.55 * strength);
 }
 
 /* ---------- world building ---------- */
@@ -163,6 +168,56 @@ function buildMilkyWay() {
   scene.add(milkyPoints);
 }
 
+// two–three translucent green-violet ribbons drifting near the
+// horizon; they follow the camera at a fixed distance so the aurora
+// lives at the edge of every stretch of the journey
+function auroraTexture(c1, c2) {
+  const c = document.createElement("canvas");
+  c.width = 512; c.height = 128;
+  const g = c.getContext("2d");
+  const grad = g.createLinearGradient(0, 128, 0, 0);
+  grad.addColorStop(0, "rgba(0,0,0,0)");
+  grad.addColorStop(0.45, c1);
+  grad.addColorStop(0.75, c2);
+  grad.addColorStop(1, "rgba(0,0,0,0)");
+  g.fillStyle = grad;
+  // gently waving band
+  g.beginPath();
+  g.moveTo(0, 128);
+  for (let x = 0; x <= 512; x += 16) {
+    g.lineTo(x, 34 + Math.sin(x / 63) * 16);
+  }
+  g.lineTo(512, 128);
+  g.closePath();
+  g.fill();
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function buildAurora() {
+  if (tier > 1 && window.innerWidth < 700) return; // keep mobile lean
+  const specs = [
+    { c1: "rgba(64,196,140,0.20)", c2: "rgba(120,90,200,0.12)", y: -420, z: -1150, w: 3600, h: 520, speed: 0.021 },
+    { c1: "rgba(90,120,220,0.14)", c2: "rgba(64,196,140,0.10)", y: -330, z: -1450, w: 4200, h: 460, speed: -0.014 },
+    { c1: "rgba(110,200,160,0.10)", c2: "rgba(150,100,220,0.08)", y: -500, z: -900, w: 3000, h: 420, speed: 0.011 },
+  ].slice(0, tier === 1 ? 3 : 2);
+  auroras = specs.map((s) => {
+    const mat = new THREE.MeshBasicMaterial({
+      map: auroraTexture(s.c1, s.c2),
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.DoubleSide,
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(s.w, s.h), mat);
+    mesh.position.set(0, s.y, s.z);
+    scene.add(mesh);
+    return { mesh, spec: s };
+  });
+}
+
 /* ---------- runtime ---------- */
 
 function onResize() {
@@ -196,12 +251,13 @@ function render(now) {
   const t = (now - clockStart) / 1000;
 
   // the camera's journey: forward through the field with a gentle
-  // side-to-side drift, plus the mouse parallax lean
+  // winding drift plus slow perpetual sway — autonomous, never
+  // cursor-driven
   camera.position.z = 300 - p * (DEPTH - 700);
-  camera.position.x = Math.sin(p * 3.1) * 90;
-  camera.position.y = Math.sin(p * 2.2) * 46;
-  camera.rotation.y = -mouse.x * 0.055 + Math.sin(p * 2.4) * 0.02;
-  camera.rotation.x = mouse.y * 0.045;
+  camera.position.x = Math.sin(p * 3.1) * 90 + Math.sin(t * 0.10) * 26;
+  camera.position.y = Math.sin(p * 2.2) * 46 + Math.sin(t * 0.13 + 1.7) * 14;
+  camera.rotation.y = Math.sin(p * 2.4) * 0.02 + Math.sin(t * 0.07) * 0.012;
+  camera.rotation.x = Math.sin(t * 0.09 + 0.8) * 0.008;
 
   // nightfall
   const bg = grade(p);
@@ -209,9 +265,19 @@ function render(now) {
   scene.fog.color.copy(bg);
   duskGlow.material.opacity = Math.max(0, 0.34 * (1 - p * 2.4));
 
-  // streak boost eases; stars twinkle in three phased groups
+  // streak boost eases; event flashes decay; stars twinkle in
+  // three phased groups
   boostShown += (boost - boostShown) * 0.05;
-  const lift = 1 + boostShown * 0.055;
+  flash *= 0.94;
+  const lift = 1 + boostShown * 0.055 + flash * 0.22;
+
+  // aurora ribbons ride ahead of the camera, breathing slowly
+  for (let i = 0; i < auroras.length; i++) {
+    const a = auroras[i];
+    a.mesh.position.z = camera.position.z + a.spec.z;
+    a.mesh.position.x = Math.sin(t * a.spec.speed * 10 + i * 2.1) * 260;
+    a.mesh.material.opacity = (0.55 + 0.35 * Math.sin(t * 0.11 + i * 1.9)) * (1 - p * 0.45);
+  }
   for (const ggroup of starGroups) {
     const u = ggroup.userData;
     const tw = 0.82 + 0.18 * Math.sin(t * u.speed * 2 + u.phase);

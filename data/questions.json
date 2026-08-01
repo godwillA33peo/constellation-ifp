@@ -1,136 +1,445 @@
 {
   "_readme": "Star Chart question pools. Edit freely — no code changes needed. Each round mixes: 3 guess-the-fellow (generated from the fellows data), 3 'lore', 2 'places', 2 'realfake'. For 'lore' and 'places', 'answer' is the index into 'options' (options are shuffled on screen). For 'places' you can add a photo path (e.g. 'assets/quiz/quad.jpg') and it will show above the clue; leave null for text-only. For 'realfake', 'real': true/false and 'note' gives the truth.",
-
   "lore": [
     {
       "q": "You've walked the whole Salthill prom. What's the ritual at the far end?",
-      "options": ["Kick the wall", "Touch the water", "Turn around three times", "Throw in a coin"],
+      "options": [
+        "Kick the wall",
+        "Touch the water",
+        "Turn around three times",
+        "Throw in a coin"
+      ],
       "answer": 0,
       "note": "Generations of Galwegians kick the wall at Blackrock before turning back."
     },
     {
       "q": "What river runs through Galway city?",
-      "options": ["The Corrib", "The Shannon", "The Moy", "The Suir"],
+      "options": [
+        "The Corrib",
+        "The Shannon",
+        "The Moy",
+        "The Suir"
+      ],
       "answer": 0,
       "note": "Short, fast, and full of swans — the Corrib."
     },
     {
       "q": "Galway's county colours, seen on every flag and jersey?",
-      "options": ["Maroon and white", "Green and gold", "Red and white", "Blue and saffron"],
+      "options": [
+        "Maroon and white",
+        "Green and gold",
+        "Red and white",
+        "Blue and saffron"
+      ],
       "answer": 0
     },
     {
       "q": "The Claddagh ring: the hands, the heart and the crown stand for…",
-      "options": ["Friendship, love and loyalty", "Faith, hope and charity", "Family, land and sea", "Past, present and future"],
+      "options": [
+        "Friendship, love and loyalty",
+        "Faith, hope and charity",
+        "Family, land and sea",
+        "Past, present and future"
+      ],
       "answer": 0,
       "note": "Born in the Claddagh, the old fishing village across the river."
     },
     {
       "q": "Galway is the City of the…",
-      "options": ["Tribes", "Saints", "Swans", "Arches"],
+      "options": [
+        "Tribes",
+        "Saints",
+        "Swans",
+        "Arches"
+      ],
       "answer": 0,
       "note": "Fourteen merchant families — the Tribes of Galway."
     },
     {
       "q": "Eyre Square's official name honours…",
-      "options": ["John F. Kennedy", "Pádraic Ó Conaire", "Christopher Columbus", "Grace O'Malley"],
+      "options": [
+        "John F. Kennedy",
+        "Pádraic Ó Conaire",
+        "Christopher Columbus",
+        "Grace O'Malley"
+      ],
       "answer": 0,
       "note": "JFK Memorial Park — he spoke there in June 1963."
     },
     {
       "q": "Which company leads Galway's famous Halloween street parade?",
-      "options": ["Macnas", "Druid", "Fíbín", "Branar"],
+      "options": [
+        "Macnas",
+        "Druid",
+        "Fíbín",
+        "Branar"
+      ],
       "answer": 0
     },
     {
       "q": "The Spanish Arch was built in 1584 to…",
-      "options": ["Extend the city wall and protect the quays", "House Spanish sailors", "Store Armada gold", "Mark the fish market"],
+      "options": [
+        "Extend the city wall and protect the quays",
+        "House Spanish sailors",
+        "Store Armada gold",
+        "Mark the fish market"
+      ],
       "answer": 0
     },
     {
       "q": "Which bridge do you stand on to watch salmon running upstream?",
-      "options": ["Salmon Weir Bridge", "Wolfe Tone Bridge", "William O'Brien Bridge", "Quincentennial Bridge"],
+      "options": [
+        "Salmon Weir Bridge",
+        "Wolfe Tone Bridge",
+        "William O'Brien Bridge",
+        "Quincentennial Bridge"
+      ],
       "answer": 0
     },
     {
       "q": "Our university opened its doors in 1849 as…",
-      "options": ["Queen's College Galway", "St Nicholas' College", "The Royal Academy of Connacht", "College of the Western Isles"],
+      "options": [
+        "Queen's College Galway",
+        "St Nicholas' College",
+        "The Royal Academy of Connacht",
+        "College of the Western Isles"
+      ],
       "answer": 0,
       "note": "Queen's College Galway → UCG → NUI Galway → University of Galway."
     }
   ],
-
   "places": [
     {
       "name": "The Quadrangle",
       "clue": "Limestone, Tudor-Gothic, the oldest corner of campus — and the law says your graduation photo happens here.",
       "photo": null,
-      "options": ["The Quadrangle", "Galway Cathedral", "Lynch's Castle", "Menlo Castle"],
+      "options": [
+        "The Quadrangle",
+        "Galway Cathedral",
+        "Lynch's Castle",
+        "Menlo Castle"
+      ],
       "answer": 0
     },
     {
       "name": "James Hardiman Library",
       "clue": "Where this cohort's deadlines were actually survived. Silent floors, group-study rooms, the smell of stress.",
       "photo": null,
-      "options": ["James Hardiman Library", "Áras na Mac Léinn", "The Kingfisher", "O'Donoghue Centre"],
+      "options": [
+        "James Hardiman Library",
+        "Áras na Mac Léinn",
+        "The Kingfisher",
+        "O'Donoghue Centre"
+      ],
       "answer": 0
     },
     {
       "name": "The Spanish Arch",
       "clue": "Stone arches at the river's mouth where the whole city sits with chips the moment the sun appears.",
       "photo": null,
-      "options": ["The Spanish Arch", "The Long Walk", "The Claddagh", "Wolfe Tone Bridge"],
+      "options": [
+        "The Spanish Arch",
+        "The Long Walk",
+        "The Claddagh",
+        "Wolfe Tone Bridge"
+      ],
       "answer": 0
     },
     {
       "name": "Salthill Prom",
       "clue": "Two kilometres of seafront where half of Galway walks on a Sunday — diving tower included, swimmers optional, weather irrelevant.",
       "photo": null,
-      "options": ["Salthill Prom", "Silver Strand", "Ballyloughane Beach", "The Long Walk"],
+      "options": [
+        "Salthill Prom",
+        "Silver Strand",
+        "Ballyloughane Beach",
+        "The Long Walk"
+      ],
       "answer": 0
     },
     {
       "name": "Galway Cathedral",
       "clue": "The great green dome you can see from half the city — built on the site of the old jail.",
       "photo": null,
-      "options": ["Galway Cathedral", "St Nicholas' Collegiate Church", "Galway Courthouse", "The Franciscan Abbey"],
+      "options": [
+        "Galway Cathedral",
+        "St Nicholas' Collegiate Church",
+        "Galway Courthouse",
+        "The Franciscan Abbey"
+      ],
       "answer": 0
     },
     {
       "name": "The Long Walk",
       "clue": "The postcard: a single row of coloured houses along the harbour, photographed roughly nine million times a day.",
       "photo": null,
-      "options": ["The Long Walk", "Quay Street", "The Claddagh", "Shop Street"],
+      "options": [
+        "The Long Walk",
+        "Quay Street",
+        "The Claddagh",
+        "Shop Street"
+      ],
       "answer": 0
     },
     {
       "name": "Quay Street",
       "clue": "Cobbles, buskers, bunting and hen parties — the Latin Quarter street every visitor photographs first.",
       "photo": null,
-      "options": ["Quay Street", "Eglinton Street", "Dominick Street", "University Road"],
+      "options": [
+        "Quay Street",
+        "Eglinton Street",
+        "Dominick Street",
+        "University Road"
+      ],
       "answer": 0
     },
     {
       "name": "The Corrib walkway",
       "clue": "The riverside path from town up past the cathedral toward campus — swan escort included at no extra charge.",
       "photo": null,
-      "options": ["The Corrib walkway", "Terryland Forest Park", "Barna Woods", "Salthill Prom"],
+      "options": [
+        "The Corrib walkway",
+        "Terryland Forest Park",
+        "Barna Woods",
+        "Salthill Prom"
+      ],
       "answer": 0
     }
   ],
-
   "realfake": [
-    { "claim": "\"Craic\" means fun, news and a good time, as in \"any craic?\"", "real": true },
-    { "claim": "\"The messages\" means the groceries.", "real": true },
-    { "claim": "\"Deadly\" means terrible.", "real": false, "note": "Deadly means brilliant. Obviously." },
-    { "claim": "\"A press\" is a cupboard.", "real": true },
-    { "claim": "\"Giving out\" means handing out free samples.", "real": false, "note": "Giving out means scolding — as in \"she was giving out to me all day.\"" },
-    { "claim": "\"Culchie\" means someone from the city.", "real": false, "note": "It's the opposite — anyone from outside the city (Dubs would say all of Galway counts)." },
-    { "claim": "\"Minerals\" are soft drinks.", "real": true },
-    { "claim": "\"Acting the maggot\" means messing around.", "real": true },
-    { "claim": "\"Fierce\" means very — as in \"fierce cold out.\"", "real": true },
-    { "claim": "\"A yoke\" is an egg.", "real": false, "note": "A yoke is a thing — any thing — whose name you can't be bothered to remember." },
-    { "claim": "\"Grand\" means enormous.", "real": false, "note": "Grand just means fine. Everything is grand. Even when it isn't." },
-    { "claim": "\"Notions\" means having ideas above your station.", "real": true }
-  ]
+    {
+      "claim": "\"Craic\" means fun, news and a good time, as in \"any craic?\"",
+      "real": true
+    },
+    {
+      "claim": "\"The messages\" means the groceries.",
+      "real": true
+    },
+    {
+      "claim": "\"Deadly\" means terrible.",
+      "real": false,
+      "note": "Deadly means brilliant. Obviously."
+    },
+    {
+      "claim": "\"A press\" is a cupboard.",
+      "real": true
+    },
+    {
+      "claim": "\"Giving out\" means handing out free samples.",
+      "real": false,
+      "note": "Giving out means scolding — as in \"she was giving out to me all day.\""
+    },
+    {
+      "claim": "\"Culchie\" means someone from the city.",
+      "real": false,
+      "note": "It's the opposite — anyone from outside the city (Dubs would say all of Galway counts)."
+    },
+    {
+      "claim": "\"Minerals\" are soft drinks.",
+      "real": true
+    },
+    {
+      "claim": "\"Acting the maggot\" means messing around.",
+      "real": true
+    },
+    {
+      "claim": "\"Fierce\" means very — as in \"fierce cold out.\"",
+      "real": true
+    },
+    {
+      "claim": "\"A yoke\" is an egg.",
+      "real": false,
+      "note": "A yoke is a thing — any thing — whose name you can't be bothered to remember."
+    },
+    {
+      "claim": "\"Grand\" means enormous.",
+      "real": false,
+      "note": "Grand just means fine. Everything is grand. Even when it isn't."
+    },
+    {
+      "claim": "\"Notions\" means having ideas above your station.",
+      "real": true
+    }
+  ],
+  "faces": {
+    "_note": "Placeholder group photo + generated coordinates. When the real group photo lands in assets/group-photo.jpg, redo coords: x,y are fractions (0-1) of image width/height at each face.",
+    "photo": "assets/group-photo.jpg",
+    "coords": [
+      {
+        "name": "Limbie",
+        "x": 0.1456,
+        "y": 0.2083
+      },
+      {
+        "name": "Joseph",
+        "x": 0.2606,
+        "y": 0.2083
+      },
+      {
+        "name": "Farai",
+        "x": 0.3756,
+        "y": 0.2083
+      },
+      {
+        "name": "Zulu",
+        "x": 0.4906,
+        "y": 0.2083
+      },
+      {
+        "name": "Zozie",
+        "x": 0.6056,
+        "y": 0.2083
+      },
+      {
+        "name": "Faith",
+        "x": 0.7206,
+        "y": 0.2083
+      },
+      {
+        "name": "Zizi",
+        "x": 0.8356,
+        "y": 0.2083
+      },
+      {
+        "name": "Eva",
+        "x": 0.1116,
+        "y": 0.3722
+      },
+      {
+        "name": "Ali",
+        "x": 0.2266,
+        "y": 0.3722
+      },
+      {
+        "name": "Paula",
+        "x": 0.3416,
+        "y": 0.3722
+      },
+      {
+        "name": "Aline",
+        "x": 0.4566,
+        "y": 0.3722
+      },
+      {
+        "name": "Misgana",
+        "x": 0.5716,
+        "y": 0.3722
+      },
+      {
+        "name": "Sofia",
+        "x": 0.6866,
+        "y": 0.3722
+      },
+      {
+        "name": "Seble",
+        "x": 0.8016,
+        "y": 0.3722
+      },
+      {
+        "name": "Mitchell",
+        "x": 0.9166,
+        "y": 0.3722
+      },
+      {
+        "name": "Namutami",
+        "x": 0.0881,
+        "y": 0.5361
+      },
+      {
+        "name": "Ruth",
+        "x": 0.2031,
+        "y": 0.5361
+      },
+      {
+        "name": "Sipho",
+        "x": 0.3181,
+        "y": 0.5361
+      },
+      {
+        "name": "Tryphine",
+        "x": 0.4331,
+        "y": 0.5361
+      },
+      {
+        "name": "Mbene",
+        "x": 0.5481,
+        "y": 0.5361
+      },
+      {
+        "name": "John",
+        "x": 0.6631,
+        "y": 0.5361
+      },
+      {
+        "name": "Zin",
+        "x": 0.7781,
+        "y": 0.5361
+      },
+      {
+        "name": "Reesha",
+        "x": 0.8931,
+        "y": 0.5361
+      },
+      {
+        "name": "Makeba",
+        "x": 0.1691,
+        "y": 0.7
+      },
+      {
+        "name": "Ali Gaza",
+        "x": 0.2841,
+        "y": 0.7
+      },
+      {
+        "name": "Beesan",
+        "x": 0.3991,
+        "y": 0.7
+      },
+      {
+        "name": "Bernardo",
+        "x": 0.5141,
+        "y": 0.7
+      },
+      {
+        "name": "Toan",
+        "x": 0.6291,
+        "y": 0.7
+      },
+      {
+        "name": "Zwi",
+        "x": 0.7441,
+        "y": 0.7
+      },
+      {
+        "name": "Mariam",
+        "x": 0.8591,
+        "y": 0.7
+      },
+      {
+        "name": "Isabella",
+        "x": 0.2606,
+        "y": 0.8639
+      },
+      {
+        "name": "Maria Jose",
+        "x": 0.3756,
+        "y": 0.8639
+      },
+      {
+        "name": "Nayvi",
+        "x": 0.4906,
+        "y": 0.8639
+      },
+      {
+        "name": "Helena",
+        "x": 0.6056,
+        "y": 0.8639
+      },
+      {
+        "name": "Zaram",
+        "x": 0.7206,
+        "y": 0.8639
+      }
+    ]
+  }
 }

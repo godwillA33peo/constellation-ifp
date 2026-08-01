@@ -6,7 +6,8 @@
 import { state, getLeaderboard, submitScore, onLeaderboardChange } from "./store.js";
 import { el, handLine, drawIn, mulberry32, hashString, reducedMotion } from "./sky.js";
 import { setSkyBoost } from "./atmosphere.js";
-import { chime } from "./soundscape.js";
+import { chime, fizzleSound, claddaghChime } from "./soundscape.js";
+import { flagColors } from "./flags.js";
 import { esc } from "./ui.js";
 
 const QUESTIONS = 10;
@@ -58,7 +59,10 @@ function mcq(kind, clue, options, answerIdx, { note = "", photo = null } = {}) {
 function fellowQuestion(fellows) {
   const fellow = fellows[Math.floor(Math.random() * fellows.length)];
   const roll = Math.random();
-  const type = roll < 0.55 && fellow.funFact ? "fact" : roll < 0.85 ? "course" : "country";
+  // fall back gracefully while course/fact data is still blank
+  const type = roll < 0.4 && fellow.funFact ? "fact"
+    : roll < 0.7 && fellow.course ? "course"
+    : "country";
   let kind, clue, pool;
   if (type === "fact") {
     kind = "Guess the fellow";
@@ -66,7 +70,7 @@ function fellowQuestion(fellows) {
     pool = fellows.filter((f) => f.id !== fellow.id);
   } else if (type === "course") {
     kind = "Guess the fellow";
-    clue = `${fellow.course} at ${fellow.university}. Who is it?`;
+    clue = `Doing ${fellow.course}${fellow.university ? ` at ${fellow.university}` : ""}. Who is it?`;
     pool = fellows.filter((f) => f.id !== fellow.id && f.course !== fellow.course);
   } else {
     kind = "Guess the fellow";
@@ -81,19 +85,49 @@ function fellowQuestion(fellows) {
   }
   const names = [fellow.name, ...distractors.map((d) => d.name)];
   const q = mcq(kind, clue, names, 0);
+  q.flagCountry = fellow.country; // burst in their flag's colours
   return q;
+}
+
+// §5.4 round 3 — the group photo appears: tap the right face
+function findQuestion(fellows, faces) {
+  const candidates = faces.coords.filter((c) => fellows.some((f) => f.name === c.name));
+  const pick = candidates[Math.floor(Math.random() * candidates.length)];
+  const fellow = fellows.find((f) => f.name === pick.name);
+  return {
+    kind: "Find the fellow",
+    type: "find",
+    clue: `Find ${pick.name}!`,
+    photo: faces.photo,
+    coords: faces.coords,
+    target: pick.name,
+    flagCountry: fellow?.country,
+    note: "",
+    options: [],
+  };
 }
 
 export function buildRound(fellows, quiz) {
   const qs = [];
   const usedFellowClues = new Set();
-  while (qs.length < 3) {
+  const canFind = quiz.faces && quiz.faces.coords?.length >= 4;
+  const guessCount = canFind ? 2 : 4;
+  while (qs.length < guessCount) {
     const q = fellowQuestion(fellows);
     if (usedFellowClues.has(q.clue)) continue;
     usedFellowClues.add(q.clue);
     qs.push(q);
   }
-  for (const item of shuffle(quiz.lore).slice(0, 3)) {
+  if (canFind) {
+    const seen = new Set();
+    while (qs.filter((q) => q.type === "find").length < 2) {
+      const q = findQuestion(fellows, quiz.faces);
+      if (seen.has(q.target)) continue;
+      seen.add(q.target);
+      qs.push(q);
+    }
+  }
+  for (const item of shuffle(quiz.lore).slice(0, 2)) {
     qs.push(mcq("Galway lore", item.q, item.options, item.answer, { note: item.note }));
   }
   for (const item of shuffle(quiz.places).slice(0, 2)) {
@@ -177,11 +211,12 @@ class Comet {
     };
   }
 
-  burst() { this.setState("burst", 38, "gold"); }
+  // colors: burst in a fellow's flag colours; gold otherwise
+  burst(colors = null) { this.setState("burst", 38, "gold", colors); }
   fizzle() { this.setState("fizzle", 14, "smoke"); }
   land() { this.setState("landed", 0); }
 
-  setState(name, sparkCount, flavor) {
+  setState(name, sparkCount, flavor, colors = null) {
     if (this.state !== "flying") return;
     this.state = name;
     this.stateAt = performance.now();
@@ -197,6 +232,7 @@ class Comet {
         life: 1,
         decay: flavor === "gold" ? 0.02 + Math.random() * 0.02 : 0.008 + Math.random() * 0.008,
         gold: flavor === "gold",
+        color: colors ? colors[i % colors.length] : null,
       });
     }
   }
@@ -257,7 +293,7 @@ class Comet {
       s.life -= s.decay;
       if (s.life <= 0) continue;
       ctx.globalAlpha = Math.max(0, s.life) * (s.gold ? 0.9 : 0.4);
-      ctx.fillStyle = s.gold ? "#E6C87A" : "#9aa3b8";
+      ctx.fillStyle = s.color || (s.gold ? "#E6C87A" : "#9aa3b8");
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.gold ? 1.3 : 2.2, 0, Math.PI * 2);
       ctx.fill();
@@ -320,6 +356,7 @@ function nextQuestion(round) {
   if (round.i >= round.questions.length) return renderEnd(round);
   const q = round.questions[round.i];
 
+  const isFind = q.type === "find";
   root.innerHTML = `
     <div class="game-screen">
       <div class="clad-progress" aria-hidden="true"></div>
@@ -329,8 +366,10 @@ function nextQuestion(round) {
         <span class="hud-score">${round.score}</span>
       </div>
       <div class="${reducedMotion() ? "comet-fallback" : "comet-strip"}"></div>
-      <p class="clue-text"><span class="clue-kind">${esc(q.kind)}</span>${q.photo ? `<img class="clue-photo" src="${esc(q.photo)}" alt="">` : ""}${esc(q.clue)}</p>
-      <div class="option-grid"></div>
+      <p class="clue-text"><span class="clue-kind">${esc(q.kind)}</span>${!isFind && q.photo ? `<img class="clue-photo" src="${esc(q.photo)}" alt="">` : ""}${esc(q.clue)}</p>
+      ${isFind
+        ? `<div class="find-photo"><img src="${esc(q.photo)}" alt="Our group photo — find ${esc(q.target)}"></div>`
+        : `<div class="option-grid"></div>`}
       <p class="round-note" aria-live="polite"></p>
     </div>`;
 
@@ -342,23 +381,30 @@ function nextQuestion(round) {
     : new Comet(strip, SECONDS * 1000);
 
   const note = root.querySelector(".round-note");
-  const grid = root.querySelector(".option-grid");
   const started = performance.now();
   let settled = false;
+  let buttons = [];
 
-  const timeout = setTimeout(() => settle(-1), SECONDS * 1000);
+  const timeout = setTimeout(() => settle(null), SECONDS * 1000);
 
-  function settle(chosenIdx) {
+  const rightAnswerLabel = () => (isFind ? q.target : q.options[q.answerIdx]);
+
+  function settle(chosenBtn) {
     if (settled) return;
     settled = true;
     clearTimeout(timeout);
-    const buttons = [...grid.querySelectorAll("button")];
     buttons.forEach((b) => (b.disabled = true));
-    const rightBtn = buttons[q.answerIdx];
+    const rightBtn = isFind
+      ? buttons.find((b) => b.dataset.name === q.target)
+      : buttons[q.answerIdx];
     const extra = q.note ? ` ${esc(q.note)}` : "";
+    const correct = chosenBtn && (isFind
+      ? chosenBtn.dataset.name === q.target
+      : chosenBtn === buttons[q.answerIdx]);
 
-    if (chosenIdx === q.answerIdx) {
-      round.comet.burst();
+    if (correct) {
+      // fellow questions burst in that fellow's flag colours
+      round.comet.burst(q.flagCountry ? flagColors(q.flagCountry) : null);
       chime();
       const elapsed = (performance.now() - started) / 1000;
       const speed = Math.max(0, Math.round(BASE_POINTS * (1 - elapsed / SECONDS)));
@@ -369,35 +415,52 @@ function nextQuestion(round) {
       const streakBonus = Math.min(STREAK_CAP, Math.max(0, round.streak - 1) * STREAK_BONUS);
       const gain = BASE_POINTS + speed + streakBonus;
       round.score += gain;
-      rightBtn.classList.add("correct");
+      rightBtn?.classList.add("correct");
       note.innerHTML = `<span class="gain">+${gain}</span> — ${speed} for speed${streakBonus ? `, ${streakBonus} for the streak` : ""}.${extra}`;
-      // the new star takes its place
       const prog = root.querySelector(".clad-progress");
       prog.innerHTML = "";
       prog.append(claddaghSVG(round.correct));
     } else {
       round.streak = 0;
       setSkyBoost(0);
-      if (chosenIdx >= 0) {
+      if (chosenBtn) {
         round.comet.fizzle();
-        buttons[chosenIdx].classList.add("wrong");
-        note.innerHTML = `It's ${esc(q.options[q.answerIdx])}.${extra}`;
+        fizzleSound();
+        chosenBtn.classList.add("wrong");
+        note.innerHTML = `${isFind ? `That's not ${esc(q.target)} — there they are.` : `It's ${esc(rightAnswerLabel())}.`}${extra}`;
       } else {
         round.comet.land();
-        note.innerHTML = `The comet landed — it was ${esc(q.options[q.answerIdx])}.${extra}`;
+        note.innerHTML = `The comet landed — ${isFind ? `${esc(q.target)} was right there.` : `it was ${esc(rightAnswerLabel())}.`}${extra}`;
       }
-      rightBtn.classList.add("correct");
+      rightBtn?.classList.add("correct");
     }
     setTimeout(() => { round.i += 1; nextQuestion(round); }, 1600);
   }
 
-  q.options.forEach((text, idx) => {
-    const btn = document.createElement("button");
-    btn.className = "option-btn";
-    btn.textContent = text;
-    btn.addEventListener("click", () => settle(idx));
-    grid.append(btn);
-  });
+  if (isFind) {
+    const photoBox = root.querySelector(".find-photo");
+    for (const c of q.coords) {
+      const hit = document.createElement("button");
+      hit.className = "face-hit";
+      hit.dataset.name = c.name;
+      hit.style.left = `${c.x * 100}%`;
+      hit.style.top = `${c.y * 100}%`;
+      hit.setAttribute("aria-label", c.name);
+      hit.addEventListener("click", () => settle(hit));
+      photoBox.append(hit);
+    }
+    buttons = [...photoBox.querySelectorAll("button")];
+  } else {
+    const grid = root.querySelector(".option-grid");
+    q.options.forEach((text) => {
+      const btn = document.createElement("button");
+      btn.className = "option-btn";
+      btn.textContent = text;
+      btn.addEventListener("click", () => settle(btn));
+      grid.append(btn);
+    });
+    buttons = [...grid.querySelectorAll("button")];
+  }
 }
 
 function renderEnd(round) {
@@ -427,6 +490,7 @@ function renderEnd(round) {
     </div>`;
 
   root.querySelector(".clad-final").append(claddaghSVG(round.correct, { reveal: perfect }));
+  if (perfect) claddaghChime();
   refreshLeaderboard(root.querySelector("[data-lb]"));
   refreshLeaderboardSky(root.querySelector("[data-lb-sky]"));
 

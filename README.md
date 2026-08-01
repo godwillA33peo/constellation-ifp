@@ -1,12 +1,22 @@
-# Constellation ✦
+# Ireland Fellows — Galway '26 ✦
 
 A farewell night-sky for the Ireland Fellows cohort at University of Galway.
-Every fellow is a star; every home country a point of origin; the party is the
-one night the whole constellation is visible at once.
+**35 fellows, 22 countries.** Every fellow is a star; every home country a
+point of origin; the party is the night the whole sky is visible at once.
 
-**Four sections:** Arrivals (world map of star-clusters) · Sky Gallery
-(pannable photo sky) · Star Chart (guess-the-fellow game with a live
-leaderboard) · Trade Zone (the skills network that outlives the party).
+**Four stops on the journey:** Arrivals (each fellow's flag turns to stardust
+and flies home to Galway, the huddle growing to 35) · Sky Gallery (photo
+stars orbiting the group-photo moon) · Star Chart (five round types incl.
+find-the-fellow, with a live leaderboard) · The Menu (bring your country to
+the table — dishes, drinks, upvotes, lanterns).
+
+Wordmark text is a one-line change in `js/config.js` (`WORDMARK` /
+`PRELOADER_MARK`). Fellows live in `data/fellows.json`, flag colours in
+`data/flags.json`, the quiz + find-the-fellow face coordinates in
+`data/questions.json`. The group photo (`assets/group-photo.jpg`) and share
+card (`assets/share-card.jpg`) are generated placeholders — swap in the real
+ones; when the real group photo lands, redo the face coordinates in
+`questions.json` (x/y as fractions of image width/height).
 
 ## How it's built
 

@@ -39,8 +39,9 @@ html { scroll-behavior: smooth; }
 body {
   margin: 0;
   background: var(--indigo); /* only visible for the first paint */
-  color: var(--white);
+  color: #D8D6E4; /* soft off-white — never pure white */
   font-family: var(--font-body);
+  font-weight: 300;
   font-size: var(--step-0);
   line-height: 1.6;
   min-height: 100vh;
@@ -54,10 +55,11 @@ body {
 
 h1, h2, h3, .display {
   font-family: var(--font-display);
-  font-weight: 560;
-  letter-spacing: 0.01em;
+  font-weight: 380; /* light and elegant — never heavy */
+  letter-spacing: 0.045em;
   line-height: 1.15;
   margin: 0 0 0.5em;
+  color: #F3EBD8; /* warm ivory */
   text-shadow: var(--shadow-text);
 }
 h1 { font-size: var(--step-4); }
@@ -959,7 +961,8 @@ body.display-mode { padding: 0; overflow: hidden; }
   align-items: flex-start;
 }
 .hero-title {
-  font-size: clamp(2.7rem, 9vw, 6.2rem);
+  font-size: clamp(2.7rem, 9vw, 6.6rem);
+  font-weight: 320; /* huge but light */
   max-width: 11ch;
   margin-bottom: 0.4em;
 }
@@ -981,16 +984,15 @@ body.display-mode { padding: 0; overflow: hidden; }
 
 /* ---------- kinetic typography ---------- */
 
-.kin .kw { display: inline-block; overflow: hidden; vertical-align: bottom; }
-.kin .kwi { display: inline-block; will-change: transform; }
-.kin-armed .kwi { transform: translateY(118%); opacity: 0; }
+/* words resolve into focus like stars — blurred and dim → sharp */
+.kin .kw { display: inline-block; vertical-align: bottom; }
+.kin .kwi { display: inline-block; will-change: filter, opacity; }
+.kin-armed .kwi { opacity: 0.04; filter: blur(9px); }
 .kin-in .kwi {
-  transform: translateY(0);
   opacity: 1;
-  transition:
-    transform 720ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 420ms ease;
-  transition-delay: calc(var(--wi) * 70ms), calc(var(--wi) * 70ms);
+  filter: blur(0);
+  transition: opacity 600ms ease, filter 600ms ease;
+  transition-delay: calc(var(--wi) * 90ms), calc(var(--wi) * 90ms);
 }
 .shone .kwi {
   background-image: linear-gradient(105deg, var(--white) 40%, var(--gold) 50%, var(--white) 60%);
@@ -1102,6 +1104,363 @@ body.has-cursor textarea { cursor: text; }
 }
 .closing .site-footer-line { margin-top: 3rem; }
 
+/* ============================================================
+   v4.1 — Ireland Fellows · Galway '26
+   ============================================================ */
+
+/* ---------- Arrivals: the community grows ---------- */
+
+.map-scroller { position: relative; overflow-x: auto; }
+.arrivals-canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* the background never intercepts */
+  transition: opacity 300ms;
+}
+
+.country-dot { cursor: pointer; }
+.country-dot .dot-core {
+  fill: var(--line-blue);
+  opacity: 0.85;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: fill 200ms;
+}
+.country-dot:hover .dot-core,
+.country-dot:focus-visible .dot-core { fill: var(--gold); }
+.country-dot.pulsing .dot-core {
+  fill: var(--gold);
+  animation: dot-pulse 700ms ease-in-out infinite;
+}
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(2.1); }
+}
+.country-dot .cluster-label { font-size: 6.5px; }
+
+.huddle-head {
+  opacity: 0;
+  transform: scale(0.2);
+  transition: opacity 300ms ease, transform 450ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.huddle-head.in { opacity: 1; transform: scale(1); }
+.huddle.complete .huddle-head { animation: huddle-glow 2.2s ease-in-out 1; }
+@keyframes huddle-glow {
+  0%, 100% { filter: none; }
+  30% { filter: drop-shadow(0 0 5px rgba(230, 200, 122, 0.9)); }
+}
+
+.arrivals-hud {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+.arrivals-counter {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  color: var(--gold);
+  letter-spacing: 0.08em;
+}
+.arrivals-replay {
+  border: none;
+  background: none;
+  color: var(--white-dim);
+  font-size: var(--step--1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.3rem 0;
+}
+.arrivals-replay:hover { color: var(--gold); }
+
+.arrivals-caption {
+  margin: 0.9rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  color: #F3EBD8;
+  letter-spacing: 0.05em;
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 900ms ease, filter 900ms ease;
+}
+.arrivals-caption.shown { opacity: 1; filter: blur(0); }
+
+.map-svg .fellow-node .fn-name { font-weight: 400; }
+
+/* ---------- Sky Gallery: the moon, silk flags, explore ---------- */
+
+.moon {
+  position: absolute;
+  width: 230px;
+  height: 230px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+.moon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(243, 235, 216, 0.55);
+  box-shadow:
+    0 0 45px rgba(243, 235, 216, 0.3),
+    0 0 130px rgba(243, 235, 216, 0.14);
+  filter: saturate(0.85) brightness(1.02);
+  transition: box-shadow 300ms;
+}
+.moon:hover img, .moon:focus-visible img {
+  box-shadow: 0 0 60px rgba(243, 235, 216, 0.45), 0 0 160px rgba(243, 235, 216, 0.2);
+}
+.moon .photo-name { font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; }
+@media (max-width: 700px) { .moon { width: 170px; height: 170px; } }
+
+.moon-scrim .moon-full { position: relative; max-width: min(60rem, 94vw); text-align: center; }
+.moon-full img {
+  width: 100%;
+  border-radius: 12px;
+  box-shadow: 0 0 80px rgba(243, 235, 216, 0.2);
+}
+.moon-full figcaption {
+  margin-top: 0.8rem;
+  font-family: var(--font-display);
+  color: #F3EBD8;
+  letter-spacing: 0.06em;
+}
+.moon-full .modal-close { top: -2.75rem; }
+
+/* the flag ripples faintly as slow silk behind a bloomed portrait */
+.silk-flag {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 190%;
+  height: auto;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  filter: saturate(0.35) brightness(1.15) blur(2px);
+  border-radius: 8px;
+  z-index: -1;
+}
+.photo-star.bloom .silk-flag {
+  opacity: 0.3;
+  animation: silk-wave 7s ease-in-out infinite alternate;
+  transition: opacity 700ms ease 150ms;
+}
+@keyframes silk-wave {
+  0%   { transform: translate(-50%, -50%) rotate(-2.2deg) scale(1); }
+  50%  { transform: translate(-52%, -49%) rotate(0.6deg) scale(1.05); }
+  100% { transform: translate(-48%, -51%) rotate(2.2deg) scale(1.02); }
+}
+
+.explore-toggle {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  z-index: 6;
+  display: none;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 243, 238, 0.3);
+  background: rgba(1, 3, 12, 0.6);
+  color: var(--white-dim);
+  font-size: var(--step--1);
+}
+.explore-toggle.on { color: var(--gold); border-color: var(--gold); }
+@media (pointer: coarse) { .explore-toggle { display: block; } }
+
+.photo-star img,
+.photo-star .initials {
+  border-color: color-mix(in srgb, var(--flag-tint, var(--gold)) 40%, rgba(245, 243, 238, 0.5));
+  box-shadow: 0 0 16px color-mix(in srgb, var(--flag-tint, #F5F3EE) 30%, rgba(245, 243, 238, 0.15));
+}
+
+/* ---------- Star Chart: find the fellow ---------- */
+
+.find-photo {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+.find-photo img { display: block; width: 100%; height: auto; }
+.face-hit {
+  position: absolute;
+  width: 13%;
+  aspect-ratio: 1;
+  min-width: 44px;
+  min-height: 44px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid transparent;
+  background: transparent;
+  padding: 0;
+}
+.face-hit:hover, .face-hit:focus-visible { border-color: rgba(230, 200, 122, 0.5); }
+.face-hit.correct {
+  border-color: var(--gold);
+  box-shadow: 0 0 22px var(--gold-glow), inset 0 0 14px rgba(230, 200, 122, 0.25);
+}
+.face-hit.wrong { border-color: rgba(222, 91, 91, 0.7); }
+
+/* ---------- The Menu: a feast table under the stars ---------- */
+
+.menu-tabs { display: flex; gap: 0.4rem; }
+.menu-tabs button {
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--white-dim);
+  font-size: var(--step--1);
+  letter-spacing: 0.08em;
+}
+.menu-tabs button[aria-selected="true"] {
+  color: var(--gold);
+  border-color: rgba(230, 200, 122, 0.45);
+}
+
+.menu-ranking { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.75rem; min-height: 1.6rem; margin-bottom: 0.75rem; }
+.rank-chip { font-size: var(--step--1); color: var(--gold); text-shadow: var(--shadow-text); }
+.rank-chip em { font-style: normal; color: var(--white-dim); }
+
+.menu-table { position: relative; padding-bottom: 3.2rem; margin-bottom: 2.5rem; }
+.table-line {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  width: 100%;
+  height: 3.2rem;
+  pointer-events: none;
+}
+
+.menu-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem 1.2rem;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 6rem;
+}
+
+.plate {
+  position: relative;
+  width: 7.2rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: center;
+}
+.plate-glow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  margin: 0 auto 0.4rem;
+  font-size: 1.3rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(230, 200, 122, 0.16), rgba(230, 200, 122, 0.03) 70%);
+  box-shadow: 0 0 18px rgba(230, 200, 122, 0.2);
+  transition: box-shadow 200ms, transform 200ms;
+}
+.plate-glow.drink { background: radial-gradient(circle, rgba(120, 160, 235, 0.16), rgba(120, 160, 235, 0.03) 70%); box-shadow: 0 0 18px rgba(91, 127, 222, 0.25); }
+.plate:hover .plate-glow, .plate:focus-visible .plate-glow {
+  box-shadow: 0 0 28px var(--gold-glow);
+  transform: translateY(-3px);
+}
+.plate-name {
+  display: block;
+  font-size: var(--step--1);
+  color: #D8D6E4;
+  text-shadow: var(--shadow-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.plate .flag-chip {
+  position: absolute;
+  top: 2.2rem;
+  left: calc(50% + 0.9rem);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(1, 3, 12, 0.8);
+}
+.plate-votes { display: block; font-size: 0.68rem; color: var(--white-faint); }
+.plate-votes.voted { color: var(--gold); }
+
+.flag-chip.big {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(230, 200, 122, 0.6);
+  margin-bottom: 0.5rem;
+}
+.plate-card .upvote-btn { margin-top: 1rem; }
+
+.menu-form select {
+  width: 100%;
+  padding: 0.6rem 0.2rem;
+  border: none;
+  border-bottom: 1px solid rgba(245, 243, 238, 0.3);
+  background: transparent;
+  color: #D8D6E4;
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+}
+.menu-form select:focus { outline: none; border-bottom-color: var(--gold); }
+.menu-form select option { background: var(--indigo); }
+
+/* lanterns lit by menu submissions */
+.lanterns { position: absolute; inset: 0; pointer-events: none; }
+.lantern {
+  position: absolute;
+  bottom: 26%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #FFB963;
+  box-shadow: 0 0 8px rgba(255, 185, 99, 0.9), 0 0 18px rgba(255, 185, 99, 0.4);
+  animation: lantern-breathe 5s ease-in-out infinite;
+}
+.lantern.fresh { animation: lantern-light 1.2s ease-out, lantern-breathe 5s ease-in-out 1.2s infinite; }
+@keyframes lantern-breathe { 0%, 100% { opacity: 0.85; } 50% { opacity: 0.45; } }
+@keyframes lantern-light {
+  0% { opacity: 0; transform: scale(0.2); }
+  40% { opacity: 1; transform: scale(2.4); }
+  100% { opacity: 0.85; transform: scale(1); }
+}
+
+/* ---------- Closing: the stars turn out to be people ---------- */
+
+.photo-reveal {
+  position: relative;
+  width: min(52rem, 100%);
+  aspect-ratio: 16 / 9;
+  margin: 0 auto 1.75rem;
+}
+.reveal-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.reveal-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  opacity: 0;
+  transition: opacity 1400ms ease;
+  box-shadow: 0 0 70px rgba(243, 235, 216, 0.16);
+}
+.photo-reveal.resolved .reveal-photo { opacity: 1; }
+.photo-reveal.resolved .reveal-canvas { opacity: 0; transition: opacity 1200ms ease; }
+
 /* ---------- reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1111,7 +1470,13 @@ body.has-cursor textarea { cursor: text; }
   .ps-inner,
   .ribbon-track,
   .scroll-hint span,
+  .country-dot.pulsing .dot-core,
+  .huddle.complete .huddle-head,
+  .lantern, .lantern.fresh,
+  .photo-star.bloom .silk-flag,
   .shone .kwi { animation: none; }
+  .arrivals-caption { transition: none; filter: none; }
+  .huddle-head { transition: none; opacity: 1; transform: none; }
   .photo-star { opacity: 1; transition: none; }
   .photo-star.born { transition: none; }
   .display-phase { transition-duration: 1ms; }

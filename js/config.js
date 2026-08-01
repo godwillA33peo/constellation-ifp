@@ -15,3 +15,10 @@
 
 export const SUPABASE_URL = "";
 export const SUPABASE_ANON_KEY = "";
+
+// ------------------------------------------------------------
+// Identity — change the wordmark here and it changes everywhere
+// (header, page title, preloader assembly text).
+// ------------------------------------------------------------
+export const WORDMARK = "Ireland Fellows — Galway '26";
+export const PRELOADER_MARK = "GALWAY '26"; // what the star particles assemble

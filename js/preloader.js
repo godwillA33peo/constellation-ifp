@@ -5,6 +5,8 @@
 //
 // Timers drive completion; requestAnimationFrame only paints — so
 // the sequence still resolves in throttled or non-compositing tabs.
+import { PRELOADER_MARK } from "./config.js";
+
 export function runPreloader(tracker, tier) {
   const overlay = document.getElementById("preloader");
   if (!overlay) return Promise.resolve();
@@ -129,12 +131,12 @@ function sampleWordmark(W, H) {
   off.width = W;
   off.height = H;
   const g = off.getContext("2d");
-  const size = Math.min(W * 0.09, 92);
-  g.font = `560 ${size}px Fraunces, Georgia, serif`;
+  const size = Math.min((W * 0.9) / (PRELOADER_MARK.length * 0.62), 110);
+  g.font = `400 ${size}px Fraunces, Georgia, serif`;
   g.textAlign = "center";
   g.textBaseline = "middle";
   g.fillStyle = "#fff";
-  g.fillText("CONSTELLATION", W / 2, H / 2);
+  g.fillText(PRELOADER_MARK, W / 2, H / 2);
 
   const data = g.getImageData(0, 0, W, H).data;
   const small = W < 700;

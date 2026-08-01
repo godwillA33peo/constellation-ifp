@@ -49,14 +49,16 @@ function shimmer(el) {
 
 function armGsap(el, heroManual = false) {
   const words = el.querySelectorAll(".kwi");
-  gsapRef.set(words, { yPercent: 118, opacity: 0 });
+  // words resolve into focus like stars: blurred and dim → sharp and
+  // bright. No rises, no overshoot — understated, cinematic.
+  gsapRef.set(words, { opacity: 0.05, filter: "blur(9px)" });
   if (heroManual) return; // playHero() fires this one when the preloader lifts
   gsapRef.to(words, {
-    yPercent: 0,
     opacity: 1,
-    ease: "back.out(1.55)",
-    duration: 0.75,
-    stagger: 0.07,
+    filter: "blur(0px)",
+    ease: "power2.out",
+    duration: 0.62,
+    stagger: 0.09,
     scrollTrigger: { trigger: el, start: "top 78%", once: true },
     onComplete: () => shimmer(el),
   });
@@ -82,7 +84,7 @@ export function playHero() {
   if (gsapRef && stRef) {
     const words = el.querySelectorAll(".kwi");
     gsapRef.to(words, {
-      yPercent: 0, opacity: 1, ease: "back.out(1.55)", duration: 0.8, stagger: 0.09,
+      opacity: 1, filter: "blur(0px)", ease: "power2.out", duration: 0.7, stagger: 0.11,
       onComplete: () => shimmer(el),
     });
   } else {

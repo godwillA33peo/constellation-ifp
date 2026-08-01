@@ -24,13 +24,14 @@ export function openFellowCard(fellow) {
   const photo = photoOrInitials(fellow, "card-photo");
 
   card.append(close, photo);
+  // fields still blank in the data simply don't render
   card.insertAdjacentHTML(
     "beforeend",
     `<h2>${esc(fellow.name)}</h2>
      <p class="card-country">${esc(fellow.country)}</p>
-     <p class="card-course">${esc(fellow.course)}</p>
-     <p class="card-uni">${esc(fellow.university)}</p>
-     <p class="card-fact">“${esc(fellow.funFact)}”</p>`
+     ${fellow.course ? `<p class="card-course">${esc(fellow.course)}</p>` : ""}
+     ${fellow.university ? `<p class="card-uni">${esc(fellow.university)}</p>` : ""}
+     ${fellow.funFact ? `<p class="card-fact">“${esc(fellow.funFact)}”</p>` : ""}`
   );
 
   scrim.append(card);
